@@ -1,0 +1,41 @@
+### 🐧 LP-II Cloud Deployment: Essential Linux Help
+---
+
+#### 🚀 Environment Setup (First Time)
+- **Update System**: `sudo apt update`
+- **Install Python 3 & Pip**: `sudo apt install -y python3 python3-pip`
+- **Install Node.js & NPM**: `sudo apt install -y nodejs npm`
+- **Check Versions**: `python3 --version && node -v`
+
+#### 📁 File & Directory Management
+- **Rename/Move**: `mv old_name new_name`
+- **Copy**: `cp -r source destination`
+- **Delete File**: `rm filename`
+- **Delete Directory**: `rm -rf foldername`
+- **List Files (Details)**: `ls -lah`
+
+#### 📊 Resource Monitoring (Assignment 19)
+- **Live CPU/RAM/Proc**: `htop`
+- **Disk Usage (Human Readable)**: `df -h`
+- **Live Network Traffic**: `nload` (or `sudo apt install nload`)
+- **Memory Stats**: `free -m`
+
+#### 🧹 Log Management & Cleanup
+- **Clear a Log File (Zeroing)**: `sudo truncate -s 0 /var/log/nginx/error.log`
+- **Manual Log Clear**: `sudo echo "" > app_output.log`
+- **Remove Old Logs**: `sudo rm /var/log/*.log.1` (Removes rotated logs)
+
+#### ⚙️ Service Control
+- **Nginx Refresh**: `sudo systemctl restart nginx`
+- **MongoDB Restart**: `sudo systemctl restart mongodb`
+- **Check Service Status**: `sudo systemctl status nginx`
+
+#### 🌐 Networking & Ports
+- **Find what's running on Port 80/5000**: `sudo lsof -i :80` or `sudo lsof -i :5000`
+- **Kill process on specific Port**: `sudo kill -9 $(sudo lsof -t -i:5000)`
+- **Check External IP**: `curl ifconfig.me`
+
+#### 🐍 Python / MERN Process
+- **Run Python in Background**: `nohup python3 app.py &`
+- **Run Node in Background**: `nohup node server.js &`
+- **View Background Processes**: `jobs` or `ps aux | grep python`
