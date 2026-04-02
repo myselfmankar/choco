@@ -1,0 +1,30 @@
+### [Assignment 10] E-commerce Store: Database Guide
+---
+Access the MongoDB Shell:
+> mongosh
+
+1. Switch to Store Database:
+   use store_db
+
+2. List All Products (Seeded Data):
+   db.products.find().pretty()
+
+3. Filter: Find products with price > 50000 (Luxury Items):
+   db.products.find({price: {$gt: 50000}}).pretty()
+
+4. View Active Shopping Cart:
+   db.cart.find().pretty()
+
+5. Filter: Find a specific item in the cart:
+   db.cart.find({name: /Watch/}).pretty()
+
+6. Calculate Cart Total (Aggregated):
+   db.cart.aggregate([{$group: {_id: null, total: {$sum: {$multiply: ["$price", "$quantity"]}}}}])
+
+7. Manual Insert into Cart (Emergency Backup):
+   db.cart.insertOne({
+     name: "Gold Ring",
+     price: 25000,
+     quantity: 1,
+     image: "https://images.unsplash.com/photo-1605100804763-247f67b3f417?w=500"
+   })

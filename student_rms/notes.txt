@@ -1,0 +1,30 @@
+### [Assignment 8] Student RMS: Database Guide
+---
+Access the MongoDB Shell:
+> mongosh
+
+1. Switch to Student Database:
+   use student_db
+
+2. List All Student Records:
+   db.students.find().pretty()
+
+3. Filter: Find students with marks > 75 (Distinction):
+   db.students.find({marks: {$gt: 75}}).pretty()
+
+4. Filter: Search for a specific student by Name (Regex):
+   db.students.find({name: /Donald/}).pretty()
+
+5. Filter: Find by Roll Number:
+   db.students.find({roll: "101"}).pretty()
+
+6. Sort by Marks (Descending):
+   db.students.find().sort({marks: -1}).pretty()
+
+7. Manual Insert (Emergency Backup):
+   db.students.insertOne({
+     name: "Barack Obama",
+     roll: "44",
+     email: "barack@whitehouse.gov",
+     marks: 98
+   })

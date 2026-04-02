@@ -1,0 +1,27 @@
+### [Assignment 7] Online Blog: Database Guide
+---
+Access the MongoDB Shell:
+> mongosh
+
+1. Switch to Blog Database:
+   use blog_db
+
+2. List All Blog Posts:
+   db.posts.find().pretty()
+
+3. Filter: Find posts by a specific Author:
+   db.posts.find({author: "Contributor"}).pretty()
+
+4. Filter: Find posts containing "Insight" in the title (Regex):
+   db.posts.find({title: /Insight/}).pretty()
+
+5. Count total posts:
+   db.posts.countDocuments()
+
+6. Manual Insert (Emergency Backup):
+   db.posts.insertOne({
+     title: "Manual Entry",
+     content: "Directly inserted via shell",
+     author: "SysAdmin",
+     date: new Date()
+   })

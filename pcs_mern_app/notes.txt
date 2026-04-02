@@ -1,0 +1,31 @@
+### [Assignment 20] MERN Cloud Storage: Database Guide
+---
+Access the MongoDB Shell:
+> mongosh
+
+1. Switch to Cloud Storage Database:
+   use cloud_storage
+
+2. List All File Metadata:
+   db.files.find().pretty()
+
+3. Filter: Find All Images (MimeType search):
+   db.files.find({mimeType: /image/}).pretty()
+
+4. Filter: Find All PDFs:
+   db.files.find({mimeType: "application/pdf"}).pretty()
+
+5. Filter: Find Large Files (> 1MB):
+   db.files.find({size: {$gt: 1048576}}).pretty()
+
+6. Sort by Upload Time (Newest First):
+   db.files.find().sort({uploadedAt: -1}).pretty()
+
+7. Manual Insert Metadata (Emergency Backup):
+   db.files.insertOne({
+     filename: "123-test.txt",
+     originalName: "test.txt",
+     size: 1024,
+     mimeType: "text/plain",
+     uploadedAt: new Date()
+   })

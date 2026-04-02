@@ -1,0 +1,27 @@
+### [Assignment 15] Task Dashboard: Database Guide
+---
+Access the MongoDB Shell:
+> mongosh
+
+1. Switch to To-Do Database:
+   use todo_db
+
+2. List All Tasks:
+   db.tasks.find().pretty()
+
+3. Filter: Find High Priority tasks:
+   db.tasks.find({priority: "High"}).pretty()
+
+4. Filter: Find Work-related tasks:
+   db.tasks.find({category: "Work"}).pretty()
+
+5. Filter: Find completed tasks:
+   db.tasks.find({completed: true}).pretty()
+
+6. Manual Insert (Emergency Backup):
+   db.tasks.insertOne({
+     text: "Submit LP2 Assignments",
+     category: "Urgent",
+     priority: "High",
+     completed: false
+   })
