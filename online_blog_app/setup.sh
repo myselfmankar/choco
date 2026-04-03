@@ -43,12 +43,14 @@ server {
         proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host \$host;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 EOF
 
+# Clean up ALL existing sites to avoid Port 80 conflicts
+sudo rm -f /etc/nginx/sites-enabled/*
 sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
 
 # 6. Service Refresh
 echo " Starting services..."

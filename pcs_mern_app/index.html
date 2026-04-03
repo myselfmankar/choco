@@ -1,128 +1,1072 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Cloud - Personal Storage</title>
+    <title>Nexus Cloud — Personal Storage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <style>
-        :root { --primary-blue: #007bff; --bg: #f8f9fa; --text: #333; --border: #e9ecef; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; color: var(--text); }
-        .nav { background: white; padding: 1rem 5%; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-        .nav h1 { font-weight: 600; color: var(--primary-blue); font-size: 1.25rem; margin: 0; }
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
-        .upload-section { background: white; padding: 2rem; border-radius: 10px; border: 2px dashed #ccc; text-align: center; margin-bottom: 2rem; transition: 0.3s; }
-        .upload-section:hover { border-color: var(--primary-blue); background-color: rgba(0,123,255,0.02); }
-        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
-        .btn-upload { border: 2px solid var(--primary-blue); color: var(--primary-blue); background-color: white; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .upload-btn-wrapper input[type=file] { position: absolute; font-size: 100px; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .file-list { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid var(--border); }
-        .file-item:last-child { border: none; }
-        .file-info { display: flex; align-items: center; gap: 1rem; }
-        .file-icon { color: #555; font-size: 1.2rem; }
-        .file-name { font-weight: 500; font-size: 0.95rem; }
-        .file-meta { font-size: 0.8rem; color: #888; }
-        .delete-link { color: #dc3545; font-size: 0.85rem; text-decoration: none; cursor: pointer; }
-        .delete-link:hover { text-decoration: underline; }
+        :root {
+            --bg: #0d0f12;
+            --surface: #13161b;
+            --panel: #191d24;
+            --border: #252a34;
+            --muted: #4a5160;
+            --dim: #7a8394;
+            --text: #d4d8e2;
+            --bright: #eef0f5;
+            --accent: #3b82f6;
+            --accent2: #60a5fa;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAV ── */
+        nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            color: var(--bright);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 8px var(--accent);
+            }
+
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 2px var(--accent);
+            }
+        }
+
+        .nav-meta {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        /* ── LAYOUT ── */
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-label {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.6rem;
+        }
+
+        /* Storage bar */
+        .storage-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .storage-numbers {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.6rem;
+        }
+
+        .storage-used {
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--bright);
+        }
+
+        .storage-total {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--dim);
+        }
+
+        .bar-track {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Type breakdown */
+        .type-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .type-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.78rem;
+        }
+
+        .type-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .type-name {
+            flex: 1;
+            color: var(--dim);
+        }
+
+        .type-count {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+
+        /* ── MAIN ── */
+        .main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── DROP ZONE ── */
+        .drop-zone {
+            margin: 1.5rem;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--surface);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .drop-zone input[type=file] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .drop-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.6rem;
+            opacity: 0.5;
+        }
+
+        .drop-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--bright);
+            margin-bottom: 0.3rem;
+        }
+
+        .drop-sub {
+            font-size: 0.75rem;
+            color: var(--dim);
+        }
+
+        /* Progress bar */
+        .progress-wrap {
+            margin: 0 1.5rem;
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .progress-wrap.visible {
+            display: block;
+        }
+
+        .progress-bar-track {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.4rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .progress-label {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--dim);
+        }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            margin-bottom: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .file-count-badge {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--dim);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-input {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.4rem 0.75rem 0.4rem 2rem;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text);
+            width: 200px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.55rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        /* ── FILE LIST ── */
+        .file-list-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 1.5rem 1.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 2rem 1fr 6rem 7rem 8rem;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.3rem;
+        }
+
+        .file-item {
+            display: grid;
+            grid-template-columns: 2rem 1fr 6rem 7rem 8rem;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            border-radius: 5px;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            animation: rowIn 0.2s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes rowIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .file-item:hover {
+            background: var(--panel);
+            border-color: var(--border);
+        }
+
+        .file-type-icon {
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .file-name-col {
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--bright);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-mime {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+
+        .file-size,
+        .file-date {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--dim);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.4rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 0.3rem 0.55rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: transparent;
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--dim);
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent2);
+        }
+
+        .action-btn.del:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: var(--muted);
+            gap: 0.75rem;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* ── RENAME MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            width: 340px;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--bright);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 0.6rem 0.75rem;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--bright);
+            outline: none;
+            transition: border-color 0.15s;
+            margin-bottom: 1rem;
+        }
+
+        .modal-input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.45rem 1rem;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: transparent;
+            color: var(--dim);
+        }
+
+        .btn:hover {
+            border-color: var(--muted);
+            color: var(--text);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn.primary:hover {
+            background: var(--accent2);
+            border-color: var(--accent2);
+        }
+
+        /* ── DELETE CONFIRM ── */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .confirm-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .confirm-box {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            width: 320px;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .confirm-overlay.open .confirm-box {
+            transform: scale(1);
+        }
+
+        .confirm-title {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--bright);
+            margin-bottom: 0.4rem;
+        }
+
+        .confirm-sub {
+            font-size: 0.78rem;
+            color: var(--dim);
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        .confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn.danger {
+            background: var(--red);
+            border-color: var(--red);
+            color: white;
+        }
+
+        .btn.danger:hover {
+            opacity: 0.85;
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.65rem 1rem;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .list-header {
+                grid-template-columns: 2rem 1fr 5rem 7rem;
+            }
+
+            .file-item {
+                grid-template-columns: 2rem 1fr 5rem 7rem;
+            }
+
+            .file-date {
+                display: none;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="nav">
-        <h1>NEXUS CLOUD</h1>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            NEXUS CLOUD
+        </div>
+        <div class="nav-meta" id="nav-meta">— / 50 GB</div>
+    </nav>
+
+    <div class="app">
+
+        <!-- ── SIDEBAR ── -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-label">Storage</div>
+                <div class="storage-card">
+                    <div class="storage-numbers">
+                        <span class="storage-used" id="s-used">0 KB</span>
+                        <span class="storage-total">of 50 GB</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill" id="s-bar" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="sidebar-label">By type</div>
+                <div class="type-list" id="type-list">
+                    <div class="type-row" style="color:var(--muted); font-size:0.75rem;">No files yet</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ── MAIN ── -->
+        <main class="main">
+
+            <!-- Drop zone -->
+            <div class="drop-zone" id="drop-zone">
+                <input type="file" id="file-input" multiple onchange="handleFiles(this.files)">
+                <div class="drop-icon">⬆</div>
+                <div class="drop-title">Drop files here or click to upload</div>
+                <div class="drop-sub">Max 50 MB per file</div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-wrap" id="progress-wrap">
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+                <div class="progress-label" id="progress-label">Uploading…</div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <span class="file-count-badge" id="file-count">0 files</span>
+                    <div class="search-wrap">
+                        <span class="search-icon">⌕</span>
+                        <input class="search-input" type="text" id="search" placeholder="Search files…"
+                            oninput="filterFiles()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- File list -->
+            <div class="file-list-wrap">
+                <div class="list-header">
+                    <div></div>
+                    <div>Name</div>
+                    <div>Size</div>
+                    <div>Uploaded</div>
+                    <div></div>
+                </div>
+                <div id="file-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">⬡</div>
+                        <div class="empty-text">No files yet.<br>Upload something to get started.</div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="container">
-        <div class="upload-section">
-            <p>Upload files to your personal cloud</p>
-            <div class="upload-btn-wrapper">
-                <button class="btn-upload">Select File</button>
-                <input type="file" id="file-input" onchange="uploadFile()" />
+    <!-- ── RENAME MODAL ── -->
+    <div class="modal-overlay" id="rename-modal">
+        <div class="modal">
+            <div class="modal-title">// Rename file</div>
+            <input class="modal-input" id="rename-input" type="text" placeholder="New filename…">
+            <div class="modal-actions">
+                <button class="btn" onclick="closeRename()">Cancel</button>
+                <button class="btn primary" onclick="confirmRename()">Rename</button>
             </div>
-            <p id="upload-status" style="margin-top: 10px; font-size: 0.8rem; color: #555;"></p>
         </div>
+    </div>
 
-        <div class="file-list" id="file-list">
-            <!-- Files will appear here -->
+    <!-- ── DELETE CONFIRM ── -->
+    <div class="confirm-overlay" id="confirm-modal">
+        <div class="confirm-box">
+            <div class="confirm-title">Delete file?</div>
+            <div class="confirm-sub" id="confirm-sub">This action cannot be undone.</div>
+            <div class="confirm-actions">
+                <button class="btn" onclick="closeConfirm()">Cancel</button>
+                <button class="btn danger" onclick="confirmDelete()">Delete</button>
+            </div>
         </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast" id="toast">
+        <div class="toast-dot" id="toast-dot"></div>
+        <span id="toast-msg"></span>
     </div>
 
     <script>
+        // ─── State ───────────────────────────────────────────────────────────────
+        let allFiles = [];
+        let pendingDeleteId = null;
+        let pendingRenameId = null;
+
+        // ─── Utils ───────────────────────────────────────────────────────────────
+        const fmt = {
+            size: bytes => {
+                if (bytes < 1024) return `${bytes} B`;
+                if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;
+                if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+                return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+            },
+            date: d => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+        };
+
+        const fileIcon = mime => {
+            if (mime.startsWith('image/')) return '🖼';
+            if (mime.startsWith('video/')) return '🎬';
+            if (mime.startsWith('audio/')) return '🎵';
+            if (mime.includes('pdf')) return '📕';
+            if (mime.includes('zip') || mime.includes('rar') || mime.includes('gzip')) return '📦';
+            if (mime.includes('spreadsheet') || mime.includes('excel')) return '📊';
+            if (mime.includes('word') || mime.includes('document')) return '📝';
+            if (mime.includes('presentation') || mime.includes('powerpoint')) return '📋';
+            if (mime.startsWith('text/')) return '📄';
+            return '📁';
+        };
+
+        const typeColor = mime => {
+            if (mime.startsWith('image/')) return '#818cf8';
+            if (mime.startsWith('video/')) return '#f472b6';
+            if (mime.startsWith('audio/')) return '#34d399';
+            if (mime.includes('pdf')) return '#fb923c';
+            if (mime.startsWith('text/')) return '#60a5fa';
+            return '#94a3b8';
+        };
+
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            const dot = document.getElementById('toast-dot');
+            const m = document.getElementById('toast-msg');
+            const colors = { info: '#3b82f6', success: '#22c55e', error: '#ef4444' };
+            dot.style.background = colors[type] || colors.info;
+            m.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ─── Fetch & render ──────────────────────────────────────────────────────
         async function fetchFiles() {
-            const res = await fetch('/api/files');
-            const files = await res.json();
-            const container = document.getElementById('file-list');
-            
+            try {
+                const res = await fetch('/api/files');
+                if (!res.ok) throw new Error('Failed to fetch');
+                allFiles = await res.json();
+                renderFiles(allFiles);
+                updateSidebar(allFiles);
+            } catch {
+                showToast('Could not load files', 'error');
+            }
+        }
+
+        function renderFiles(files) {
+            const list = document.getElementById('file-list');
+            const count = document.getElementById('file-count');
+            count.textContent = `${files.length} file${files.length !== 1 ? 's' : ''}`;
+
             if (files.length === 0) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No files uploaded yet.</div>';
+                list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⬡</div>
+            <div class="empty-text">No files found.<br>Upload something to get started.</div>
+          </div>`;
                 return;
             }
 
-            container.innerHTML = files.map(f => `
-                <div class="file-item">
-                    <div class="file-info">
-                        <span class="file-icon">📄</span>
-                        <div>
-                            <div class="file-name">${f.originalName}</div>
-                            <div class="file-meta">${(f.size / 1024).toFixed(1)} KB • ${new Date(f.uploadedAt).toLocaleDateString()}</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <a class="delete-link" style="color:#007bff" onclick="renameFile('${f._id}', '${f.originalName.replace(/'/g, "\\'")}')">Rename</a>
-                        <a class="delete-link" onclick="deleteFile('${f._id}')">Remove</a>
-                    </div>
-                </div>
-            `).join('');
+            list.innerHTML = files.map((f, i) => `
+        <div class="file-item" style="animation-delay:${i * 30}ms">
+          <div class="file-type-icon">${fileIcon(f.mimeType)}</div>
+          <div class="file-name-col">
+            <div class="file-name" title="${f.originalName}">${f.originalName}</div>
+            <div class="file-mime">${f.mimeType}</div>
+          </div>
+          <div class="file-size">${fmt.size(f.size)}</div>
+          <div class="file-date">${fmt.date(f.uploadedAt)}</div>
+          <div class="file-actions">
+            <button class="action-btn" onclick="downloadFile('${f._id}', '${f.originalName.replace(/'/g, "\\'")}')">↓ DL</button>
+            <button class="action-btn" onclick="openRename('${f._id}', '${f.originalName.replace(/'/g, "\\'")}')">✎ RN</button>
+            <button class="action-btn del" onclick="openConfirm('${f._id}', '${f.originalName.replace(/'/g, "\\'")}')">✕ DEL</button>
+          </div>
+        </div>
+      `).join('');
         }
 
-        async function renameFile(id, oldName) {
-            const newName = prompt("Enter new filename:", oldName);
-            if (newName === null || !newName.trim()) return;
+        function updateSidebar(files) {
+            const totalBytes = files.reduce((s, f) => s + f.size, 0);
+            const GB50 = 50 * 1024 ** 3;
+            const pct = Math.min((totalBytes / GB50) * 100, 100).toFixed(2);
 
-            await fetch(`/api/files/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ newName })
+            document.getElementById('s-used').textContent = fmt.size(totalBytes);
+            document.getElementById('s-bar').style.width = pct + '%';
+            document.getElementById('nav-meta').textContent = `${fmt.size(totalBytes)} / 50 GB`;
+
+            // Group by type
+            const groups = {};
+            files.forEach(f => {
+                const cat = f.mimeType.startsWith('image/') ? 'Images'
+                    : f.mimeType.startsWith('video/') ? 'Videos'
+                        : f.mimeType.startsWith('audio/') ? 'Audio'
+                            : f.mimeType.includes('pdf') ? 'PDFs'
+                                : f.mimeType.startsWith('text/') ? 'Text'
+                                    : 'Other';
+                groups[cat] = (groups[cat] || 0) + 1;
             });
 
-            fetchFiles();
+            const typeColors = { Images: '#818cf8', Videos: '#f472b6', Audio: '#34d399', PDFs: '#fb923c', Text: '#60a5fa', Other: '#94a3b8' };
+            const tl = document.getElementById('type-list');
+            tl.innerHTML = Object.entries(groups).length
+                ? Object.entries(groups).map(([cat, n]) => `
+            <div class="type-row">
+              <div class="type-dot" style="background:${typeColors[cat]}"></div>
+              <div class="type-name">${cat}</div>
+              <div class="type-count">${n}</div>
+            </div>`).join('')
+                : '<div class="type-row" style="color:var(--muted);font-size:0.75rem">No files yet</div>';
         }
 
-        async function uploadFile() {
-            const fileInput = document.getElementById('file-input');
-            const status = document.getElementById('upload-status');
-            
-            if (fileInput.files.length === 0) return;
-            
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            
-            status.innerText = "Uploading...";
-            
-            try {
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
+        // ─── Search ──────────────────────────────────────────────────────────────
+        function filterFiles() {
+            const q = document.getElementById('search').value.toLowerCase();
+            renderFiles(allFiles.filter(f => f.originalName.toLowerCase().includes(q)));
+        }
+
+        // ─── Upload ──────────────────────────────────────────────────────────────
+        async function handleFiles(files) {
+            if (!files.length) return;
+            const pw = document.getElementById('progress-wrap');
+            const pb = document.getElementById('progress-bar');
+            const pl = document.getElementById('progress-label');
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                pl.textContent = `Uploading ${file.name}… (${i + 1}/${files.length})`;
+                pw.classList.add('visible');
+
+                await new Promise((resolve) => {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/api/upload');
+                    xhr.upload.onprogress = e => {
+                        if (e.lengthComputable) pb.style.width = `${(e.loaded / e.total * 100).toFixed(0)}%`;
+                    };
+                    xhr.onload = () => {
+                        if (xhr.status === 201) showToast(`Uploaded: ${file.name}`, 'success');
+                        else showToast(`Failed: ${file.name}`, 'error');
+                        resolve();
+                    };
+                    xhr.onerror = () => { showToast(`Error uploading ${file.name}`, 'error'); resolve(); };
+                    xhr.send(fd);
                 });
-                
-                if (res.ok) {
-                    status.innerText = "Upload successful!";
-                    fileInput.value = '';
-                    fetchFiles();
-                } else {
-                    status.innerText = "Upload failed.";
-                }
-            } catch (err) {
-                status.innerText = "Error uploading file.";
             }
-        }
 
-        async function deleteFile(id) {
-            if (!confirm("Are you sure you want to delete this file?")) return;
-            await fetch(`/api/files/${id}`, { method: 'DELETE' });
+            pb.style.width = '100%';
+            setTimeout(() => { pw.classList.remove('visible'); pb.style.width = '0%'; }, 800);
+            document.getElementById('file-input').value = '';
             fetchFiles();
         }
 
+        // ─── Drag & Drop ─────────────────────────────────────────────────────────
+        const dz = document.getElementById('drop-zone');
+        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+        dz.addEventListener('drop', e => {
+            e.preventDefault();
+            dz.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // ─── Download ────────────────────────────────────────────────────────────
+        function downloadFile(id) {
+            window.location.href = `/api/files/${id}/download`;
+        }
+
+        // ─── Rename ──────────────────────────────────────────────────────────────
+        function openRename(id, name) {
+            pendingRenameId = id;
+            document.getElementById('rename-input').value = name;
+            document.getElementById('rename-modal').classList.add('open');
+            setTimeout(() => document.getElementById('rename-input').select(), 100);
+        }
+
+        function closeRename() {
+            document.getElementById('rename-modal').classList.remove('open');
+            pendingRenameId = null;
+        }
+
+        async function confirmRename() {
+            const newName = document.getElementById('rename-input').value.trim();
+            if (!newName) return;
+            try {
+                const res = await fetch(`/api/files/${pendingRenameId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newName })
+                });
+                if (!res.ok) throw new Error();
+                showToast('File renamed', 'success');
+                fetchFiles();
+            } catch {
+                showToast('Rename failed', 'error');
+            }
+            closeRename();
+        }
+
+        // ─── Delete ──────────────────────────────────────────────────────────────
+        function openConfirm(id, name) {
+            pendingDeleteId = id;
+            document.getElementById('confirm-sub').textContent = `"${name}" will be permanently deleted.`;
+            document.getElementById('confirm-modal').classList.add('open');
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirm-modal').classList.remove('open');
+            pendingDeleteId = null;
+        }
+
+        async function confirmDelete() {
+            try {
+                const res = await fetch(`/api/files/${pendingDeleteId}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                showToast('File deleted', 'success');
+                fetchFiles();
+            } catch {
+                showToast('Delete failed', 'error');
+            }
+            closeConfirm();
+        }
+
+        // Close modals on overlay click
+        document.getElementById('rename-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeRename(); });
+        document.getElementById('confirm-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+        // Rename on Enter
+        document.getElementById('rename-input').addEventListener('keydown', e => { if (e.key === 'Enter') confirmRename(); });
+
+        // ─── Init ────────────────────────────────────────────────────────────────
         fetchFiles();
     </script>
 </body>
+
 </html>

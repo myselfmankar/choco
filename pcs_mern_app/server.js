@@ -8,85 +8,122 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.')); // Serve index.html from root
+app.use(express.static('.'));
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/cloud_storage', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+// ─── MongoDB ────────────────────────────────────────────────────────────────
+mongoose.connect('mongodb://localhost:27017/cloud_storage')
+    .then(() => console.log('✅  MongoDB connected'))
+    .catch(err => { console.error('❌  MongoDB connection failed:', err.message); process.exit(1); });
 
 const FileSchema = new mongoose.Schema({
-    filename: String,
-    originalName: String,
-    size: Number,
-    mimeType: String,
+    filename: { type: String, required: true },
+    originalName: { type: String, required: true },
+    size: { type: Number, required: true },
+    mimeType: { type: String, required: true },
     uploadedAt: { type: Date, default: Date.now }
 });
 
 const FileModel = mongoose.model('File', FileSchema);
 
-// Multer Storage Configuration
+// ─── Multer ──────────────────────────────────────────────────────────────────
+const UPLOAD_DIR = './uploads';
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR);
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = './uploads';
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+    destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
+    filename: (_req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
 
-const upload = multer({ storage: storage });
-
-// API Endpoints
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+const upload = multer({
+    storage,
+    limits: { fileSize: 500 * 1024 * 1024 } // 500 MB cap
 });
 
-app.get('/api/files', async (req, res) => {
+// ─── Error wrapper ───────────────────────────────────────────────────────────
+const asyncHandler = fn => (req, res, next) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
+
+// ─── Routes ──────────────────────────────────────────────────────────────────
+app.get('/', (_req, res) =>
+    res.sendFile(path.join(__dirname, 'index.html'))
+);
+
+// List all files
+app.get('/api/files', asyncHandler(async (_req, res) => {
     const files = await FileModel.find().sort({ uploadedAt: -1 });
     res.json(files);
-});
+}));
 
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-    if (!req.file) return res.status(400).send('No file uploaded.');
-    
-    const newFile = new FileModel({
+// Upload
+app.post('/api/upload', (req, res, next) => {
+    upload.single('file')(req, res, err => {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({ error: `Upload error: ${err.message}` });
+        } else if (err) {
+            return res.status(500).json({ error: 'Unknown upload error' });
+        }
+        next();
+    });
+}, asyncHandler(async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const newFile = await FileModel.create({
         filename: req.file.filename,
         originalName: req.file.originalname,
         size: req.file.size,
         mimeType: req.file.mimetype
     });
 
-    await newFile.save();
     res.status(201).json(newFile);
-});
+}));
 
-app.delete('/api/files/:id', async (req, res) => {
+// Download
+app.get('/api/files/:id/download', asyncHandler(async (req, res) => {
     const file = await FileModel.findById(req.params.id);
-    if (!file) return res.status(404).send('File not found.');
+    if (!file) return res.status(404).json({ error: 'File not found' });
 
     const filePath = path.join(__dirname, 'uploads', file.filename);
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-    }
+    if (!fs.existsSync(filePath))
+        return res.status(404).json({ error: 'File missing from disk' });
+
+    res.download(filePath, file.originalName);
+}));
+
+// Rename
+app.patch('/api/files/:id', asyncHandler(async (req, res) => {
+    const { newName } = req.body;
+    if (!newName || !newName.trim())
+        return res.status(400).json({ error: 'New name is required' });
+
+    const file = await FileModel.findByIdAndUpdate(
+        req.params.id,
+        { originalName: newName.trim() },
+        { new: true }
+    );
+    if (!file) return res.status(404).json({ error: 'File not found' });
+    res.json(file);
+}));
+
+// Delete
+app.delete('/api/files/:id', asyncHandler(async (req, res) => {
+    const file = await FileModel.findById(req.params.id);
+    if (!file) return res.status(404).json({ error: 'File not found' });
+
+    const filePath = path.join(__dirname, 'uploads', file.filename);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 
     await FileModel.findByIdAndDelete(req.params.id);
     res.json({ message: 'File deleted' });
+}));
+
+// ─── Global error handler ────────────────────────────────────────────────────
+app.use((err, _req, res, _next) => {
+    console.error(err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-app.patch('/api/files/:id', async (req, res) => {
-    const { newName } = req.body;
-    const file = await FileModel.findByIdAndUpdate(req.params.id, { originalName: newName }, { new: true });
-    if (!file) return res.status(404).send('File not found.');
-    res.json(file);
-});
-
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Cloud Storage server running on http://localhost:${PORT}`);
-});
+// ─── Start ───────────────────────────────────────────────────────────────────
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =>
+    console.log(`🚀  Server running → http://localhost:${PORT}`)
+);
