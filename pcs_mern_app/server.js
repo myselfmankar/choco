@@ -12,8 +12,8 @@ app.use(express.static('.'));
 
 // ─── MongoDB ────────────────────────────────────────────────────────────────
 mongoose.connect('mongodb://localhost:27017/cloud_storage')
-    .then(() => console.log('✅  MongoDB connected'))
-    .catch(err => { console.error('❌  MongoDB connection failed:', err.message); process.exit(1); });
+    .then(() => console.log('  MongoDB connected'))
+    .catch(err => { console.error('  MongoDB connection failed:', err.message); process.exit(1); });
 
 const FileSchema = new mongoose.Schema({
     filename: { type: String, required: true },
