@@ -9,27 +9,29 @@
     <link
         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
         rel="stylesheet">
-    
-    <!-- Uppy Core & Dashboard Styles -->
     <link href="https://releases.transloadit.com/uppy/v3.25.5/uppy.min.css" rel="stylesheet">
-    
     <style>
         :root {
-            --bg: #0d0f12;
-            --surface: #13161b;
-            --panel: #191d24;
-            --border: #252a34;
-            --muted: #4a5160;
-            --dim: #7a8394;
-            --text: #d4d8e2;
-            --bright: #eef0f5;
+            --bg: #0b0d10;
+            --surface: #111318;
+            --panel: #161a21;
+            --raised: #1c2028;
+            --border: #222733;
+            --border2: #2c3240;
+            --muted: #414858;
+            --dim: #6b7585;
+            --text: #c8cdd8;
+            --bright: #eceef4;
             --accent: #3b82f6;
             --accent2: #60a5fa;
             --green: #22c55e;
             --red: #ef4444;
             --amber: #f59e0b;
+            --purple: #818cf8;
+            --pink: #f472b6;
             --mono: 'IBM Plex Mono', monospace;
             --sans: 'IBM Plex Sans', sans-serif;
+            --radius: 8px;
         }
 
         *,
@@ -40,488 +42,931 @@
             padding: 0;
         }
 
+        html,
+        body {
+            height: 100%;
+        }
+
         body {
             font-family: var(--sans);
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* ── NAV ── */
         nav {
+            flex-shrink: 0;
+            height: 54px;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
-            height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
+            padding: 0 1.75rem;
             z-index: 100;
         }
 
         .logo {
             font-family: var(--mono);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 500;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.14em;
             color: var(--bright);
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.55rem;
         }
 
         .logo-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: var(--accent);
             box-shadow: 0 0 8px var(--accent);
-            animation: pulse 2.5s ease-in-out infinite;
+            animation: blink 2.8s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
-            50% { opacity: 0.5; box-shadow: 0 0 2px var(--accent); }
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 8px var(--accent);
+            }
+
+            50% {
+                opacity: 0.35;
+                box-shadow: 0 0 2px var(--accent);
+            }
         }
 
-        .nav-meta {
+        .nav-pill {
             font-family: var(--mono);
-            font-size: 0.72rem;
-            color: var(--muted);
+            font-size: 0.68rem;
+            color: var(--dim);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 20px;
         }
 
-        /* ── LAYOUT ── */
+        #root {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
         .app {
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 260px 1fr;
             flex: 1;
-            min-height: 0;
+            overflow: hidden;
         }
 
-        /* ── SIDEBAR ── */
         .sidebar {
             background: var(--surface);
             border-right: 1px solid var(--border);
-            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
         }
 
-        .sidebar-label {
+        .sidebar-inner {
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+        }
+
+        .sidebar-section-label {
             font-family: var(--mono);
-            font-size: 0.65rem;
-            letter-spacing: 0.15em;
+            font-size: 0.6rem;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
             color: var(--muted);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.65rem;
         }
 
         .storage-card {
             background: var(--panel);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 1rem;
+            border-radius: var(--radius);
+            padding: 1rem 1.1rem;
         }
 
-        .storage-numbers {
+        .storage-top {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.75rem;
         }
 
         .storage-used {
             font-family: var(--mono);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 500;
             color: var(--bright);
         }
 
-        .storage-total {
+        .storage-cap {
             font-family: var(--mono);
-            font-size: 0.72rem;
-            color: var(--dim);
+            font-size: 0.68rem;
+            color: var(--muted);
         }
 
         .bar-track {
-            height: 4px;
-            background: var(--border);
+            height: 3px;
+            background: var(--border2);
             border-radius: 2px;
             overflow: hidden;
+            margin-bottom: 0.55rem;
         }
 
         .bar-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--accent2));
             border-radius: 2px;
-            transition: width 0.5s ease;
+            transition: width 0.6s ease;
+        }
+
+        .storage-pct {
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            color: var(--muted);
         }
 
         .type-list {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.35rem;
         }
 
         .type-row {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            font-size: 0.78rem;
+            gap: 0.65rem;
+            padding: 0.45rem 0.7rem;
+            border-radius: 5px;
+            transition: background 0.15s;
         }
 
-        .type-dot {
-            width: 7px;
-            height: 7px;
+        .type-row:hover {
+            background: var(--panel);
+        }
+
+        .type-swatch {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             flex-shrink: 0;
         }
 
-        .type-name {
+        .type-label {
             flex: 1;
+            font-size: 0.78rem;
             color: var(--dim);
         }
 
-        .type-count {
+        .type-badge {
             font-family: var(--mono);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--muted);
+            background: var(--raised);
+            border: 1px solid var(--border);
+            padding: 1px 6px;
+            border-radius: 10px;
         }
 
-        /* ── MAIN ── */
+        .quick-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .stat-key {
+            color: var(--dim);
+        }
+
+        .stat-val {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--text);
+        }
+
         .main {
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* Uppy Dashboard Overrides to match theme */
-        .uppy-Root { font-family: var(--sans) !important; }
-        .uppy-Dashboard-inner { 
-            background: var(--surface) !important; 
-            border-color: var(--border) !important; 
-            margin: 1.5rem !important; 
-            border-radius: 8px !important;
+        .uppy-zone {
+            flex-shrink: 0;
+            padding: 1.25rem 1.5rem 0;
         }
-        .uppy-Dashboard-AddFiles { border-color: var(--border) !important; background: var(--surface) !important; }
-        .uppy-DashboardContent-bar { background: var(--panel) !important; border-bottom: 1px solid var(--border) !important; }
-        .uppy-Dashboard-Item { background: var(--panel) !important; border-color: var(--border) !important; }
-        .uppy-DashboardContent-title { color: var(--bright) !important; font-size: 0.9rem !important; }
-        .uppy-Dashboard-browse { color: var(--accent) !important; }
-        .uppy-Button--primary { background-color: var(--accent) !important; }
-        .uppy-Dashboard-AddFiles-title { color: var(--bright) !important; }
 
+        /* Uppy overrides */
+        .uppy-Root,
+        .uppy-Root * {
+            font-family: var(--sans) !important;
+        }
+
+        .uppy-Dashboard-inner {
+            background: var(--panel) !important;
+            border: 1px solid var(--border2) !important;
+            border-radius: var(--radius) !important;
+            width: 100% !important;
+        }
+
+        .uppy-Dashboard-AddFiles {
+            background: var(--panel) !important;
+            border-color: transparent !important;
+        }
+
+        .uppy-Dashboard-AddFiles-title {
+            color: var(--text) !important;
+            font-size: 0.9rem !important;
+            font-weight: 400 !important;
+        }
+
+        .uppy-Dashboard-browse {
+            color: var(--accent2) !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+        }
+
+        .uppy-Dashboard-note {
+            color: var(--muted) !important;
+            font-size: 0.72rem !important;
+        }
+
+        .uppy-DashboardContent-bar {
+            background: var(--raised) !important;
+            border-bottom: 1px solid var(--border) !important;
+        }
+
+        .uppy-DashboardContent-title {
+            color: var(--bright) !important;
+            font-size: 0.82rem !important;
+        }
+
+        .uppy-DashboardContent-back,
+        .uppy-DashboardContent-addMore {
+            color: var(--accent2) !important;
+            font-size: 0.78rem !important;
+        }
+
+        .uppy-Dashboard-Item {
+            background: var(--raised) !important;
+            border-color: var(--border2) !important;
+        }
+
+        .uppy-Dashboard-Item-name {
+            color: var(--bright) !important;
+            font-size: 0.78rem !important;
+        }
+
+        .uppy-Dashboard-Item-statusSize {
+            color: var(--dim) !important;
+        }
+
+        .uppy-Dashboard-Item-action--remove:hover {
+            color: var(--red) !important;
+        }
+
+        .uppy-StatusBar {
+            background: var(--raised) !important;
+            border-top: 1px solid var(--border) !important;
+        }
+
+        .uppy-StatusBar-status {
+            color: var(--dim) !important;
+            font-size: 0.72rem !important;
+        }
+
+        .uppy-StatusBar-actionBtn--upload {
+            background: var(--accent) !important;
+            border-radius: 5px !important;
+            font-size: 0.75rem !important;
+        }
+
+        .uppy-Dashboard-inner.uppy-Dashboard-inner--isDragOver {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 1px var(--accent), 0 0 24px rgba(59, 130, 246, 0.15) !important;
+        }
+
+        /* Toolbar */
         .toolbar {
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem 1rem;
+            padding: 0.9rem 1.5rem 0.6rem;
         }
 
-        .search-wrap { position: relative; }
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .obj-count {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--muted);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.72rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 0.72rem;
+            pointer-events: none;
+        }
+
         .search-input {
             background: var(--panel);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 0.5rem 1rem 0.5rem 2.2rem;
+            padding: 0.42rem 0.85rem 0.42rem 2rem;
             font-family: var(--mono);
-            font-size: 0.75rem;
+            font-size: 0.73rem;
             color: var(--text);
-            width: 240px;
+            width: 220px;
             outline: none;
+            transition: border-color 0.15s;
         }
-        .search-icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.8rem; }
 
-        .file-list-wrap { flex: 1; overflow-y: auto; padding: 0 1.5rem 2rem; }
-        .list-header {
-            display: grid;
-            grid-template-columns: 2.5rem 1fr 6rem 8rem 8rem;
-            padding: 0.5rem 1rem;
-            font-family: var(--mono);
-            font-size: 0.65rem;
+        .search-input::placeholder {
             color: var(--muted);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        /* File table — single col-grid class for both header and rows (alignment fix) */
+        .file-list-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 1.5rem 1.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .col-grid {
+            display: grid;
+            grid-template-columns: 2.2rem 1fr 5.5rem 8rem 9rem;
+            gap: 0;
+            align-items: center;
+        }
+
+        .list-header {
+            padding: 0.4rem 0.85rem;
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
+            color: var(--muted);
             border-bottom: 1px solid var(--border);
+            margin-bottom: 0.2rem;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+        }
+
+        .list-header-actions {
+            text-align: right;
+            padding-right: 0.5rem;
         }
 
         .file-item {
-            display: grid;
-            grid-template-columns: 2.5rem 1fr 6rem 8rem 8rem;
-            align-items: center;
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.15s;
+            padding: 0.65rem 0.85rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            transition: background 0.12s, border-color 0.12s;
+            animation: rowSlide 0.18s ease forwards;
+            opacity: 0;
         }
-        .file-item:hover { background: var(--panel); }
 
-        .file-name { font-size: 0.88rem; font-weight: 500; color: var(--bright); }
-        .file-mime { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); }
-        .file-size, .file-date { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); }
-        
-        .file-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+        @keyframes rowSlide {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .file-item:hover {
+            background: var(--panel);
+            border-color: var(--border);
+        }
+
+        .file-type-icon {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .file-name-col {
+            min-width: 0;
+            padding-right: 0.75rem;
+        }
+
+        .file-name {
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--bright);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-mime {
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            color: var(--muted);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size,
+        .file-date {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--dim);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.35rem;
+            justify-content: flex-end;
+        }
+
         .btn-action {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--muted);
-            padding: 4px 8px;
+            padding: 3px 8px;
             border-radius: 4px;
             cursor: pointer;
             font-family: var(--mono);
-            font-size: 0.65rem;
-            transition: all 0.15s;
+            font-size: 0.62rem;
+            letter-spacing: 0.04em;
+            transition: all 0.12s;
+            line-height: 1.6;
         }
-        .btn-action:hover { border-color: var(--accent); color: var(--accent2); }
-        .btn-action.del:hover { border-color: var(--red); color: var(--red); }
+
+        .btn-action:hover {
+            border-color: var(--accent2);
+            color: var(--accent2);
+            background: rgba(96, 165, 250, 0.06);
+        }
+
+        .btn-action.del:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: rgba(239, 68, 68, 0.06);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 2rem;
+            gap: 0.65rem;
+        }
+
+        .empty-glyph {
+            font-family: var(--mono);
+            font-size: 1.5rem;
+            color: var(--border2);
+        }
+
+        .empty-label {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.06em;
+        }
 
         /* Modals */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center; z-index: 1000;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s;
         }
-        .modal-overlay.open { opacity: 1; pointer-events: all; }
-        .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; width: 380px; }
-        .modal-title { font-family: var(--mono); font-size: 0.9rem; margin-bottom: 1.5rem; color: var(--bright); }
-        .modal-input { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 0.8rem; color: white; border-radius: 6px; margin-bottom: 1.5rem; outline: none; }
-        
-        .toast {
-            position: fixed; bottom: 2rem; right: 2rem; background: var(--panel); border: 1px solid var(--border);
-            padding: 1rem 1.5rem; border-radius: 8px; font-family: var(--mono); font-size: 0.8rem;
-            transform: translateY(100px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; gap: 0.8rem; z-index: 2000;
-        }
-        .toast.show { transform: translateY(0); }
-        .toast-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        @media (max-width: 900px) {
-            .app { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--panel);
+            border: 1px solid var(--border2);
+            border-radius: 12px;
+            padding: 1.75rem;
+            width: 380px;
+            transform: scale(0.96);
+            transition: transform 0.18s;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--bright);
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.06em;
+        }
+
+        .modal-sub {
+            font-size: 0.78rem;
+            color: var(--dim);
+            margin-bottom: 1.4rem;
+            line-height: 1.6;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 0.65rem 0.85rem;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--bright);
+            outline: none;
+            margin-bottom: 1.2rem;
+            transition: border-color 0.15s;
+        }
+
+        .modal-input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn-modal {
+            padding: 0.48rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border2);
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.12s;
+            background: transparent;
+            color: var(--dim);
+        }
+
+        .btn-modal:hover {
+            color: var(--text);
+            background: var(--raised);
+        }
+
+        .btn-modal.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-modal.primary:hover {
+            background: var(--accent2);
+            border-color: var(--accent2);
+        }
+
+        .btn-modal.danger {
+            background: var(--red);
+            border-color: var(--red);
+            color: white;
+        }
+
+        .btn-modal.danger:hover {
+            opacity: 0.85;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--panel);
+            border: 1px solid var(--border2);
+            border-radius: 8px;
+            padding: 0.7rem 1.1rem;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            transform: translateY(12px);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            max-width: 280px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        @media(max-width:860px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            body,
+            #root,
+            .app,
+            .main,
+            .file-list-wrap {
+                overflow: auto;
+                height: auto;
+            }
         }
     </style>
 </head>
 
 <body>
     <div id="root"></div>
-
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Uppy Official UMD Bundle (includes Dashboard & XHRUpload) -->
     <script src="https://releases.transloadit.com/uppy/v3.25.5/uppy.min.js"></script>
-
     <script type="text/babel">
         const { useState, useEffect, useCallback, useRef } = React;
 
         const fmt = {
-            size: b => {
-                if (b < 1024) return b + ' B';
-                if (b < 1024**2) return (b / 1024).toFixed(1) + ' KB';
-                if (b < 1024**3) return (b / 1024**2).toFixed(1) + ' MB';
-                return (b / 1024**3).toFixed(2) + ' GB';
-            },
-            date: d => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+            size: b => b < 1024 ? b + ' B' : b < 1024 ** 2 ? (b / 1024).toFixed(1) + ' KB' : b < 1024 ** 3 ? (b / 1024 ** 2).toFixed(1) + ' MB' : (b / 1024 ** 3).toFixed(2) + ' GB',
+            date: d => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+            pct: (u, c) => Math.min(u / c * 100, 100).toFixed(1)
         };
+        const CAP = 50 * 1024 ** 3;
 
-        const getIcon = m => {
-            if (m.startsWith('image/')) return '🖼️';
-            if (m.startsWith('video/')) return '🎬';
-            if (m.startsWith('audio/')) return '🎵';
-            if (m.includes('pdf')) return '📕';
-            return '📄';
-        };
+        const TYPE_MAP = [
+            { test: m => m.startsWith('image/'), icon: '🖼️', label: 'Images', color: '#818cf8' },
+            { test: m => m.startsWith('video/'), icon: '🎬', label: 'Videos', color: '#f472b6' },
+            { test: m => m.startsWith('audio/'), icon: '🎵', label: 'Audio', color: '#34d399' },
+            { test: m => m.includes('pdf'), icon: '📕', label: 'PDFs', color: '#fb923c' },
+            { test: m => m.includes('zip') || m.includes('rar'), icon: '📦', label: 'Archives', color: '#a78bfa' },
+            { test: m => m.includes('spreadsheet') || m.includes('excel'), icon: '📊', label: 'Sheets', color: '#4ade80' },
+            { test: m => m.includes('word') || m.includes('document'), icon: '📝', label: 'Docs', color: '#60a5fa' },
+            { test: m => m.startsWith('text/'), icon: '📄', label: 'Text', color: '#94a3b8' },
+        ];
+        const getType = mime => TYPE_MAP.find(t => t.test(mime)) || { icon: '📁', label: 'Other', color: '#4a5160' };
+
+        function groupByType(files) {
+            const m = {};
+            files.forEach(f => { const { label, color } = getType(f.mimeType); if (!m[label]) m[label] = { count: 0, color }; m[label].count++; });
+            return Object.entries(m).sort((a, b) => b[1].count - a[1].count);
+        }
 
         function App() {
             const [files, setFiles] = useState([]);
             const [search, setSearch] = useState('');
             const [toast, setToast] = useState({ show: false, msg: '', color: '#3b82f6' });
-            const [modals, setModals] = useState({ rename: null, confirm: null });
+            const [renameModal, setRenameModal] = useState(null);
+            const [deleteModal, setDeleteModal] = useState(null);
+            const uppyRef = useRef(null);
+
+            const showToast = useCallback((msg, color = '#3b82f6') => {
+                setToast({ show: true, msg, color });
+                setTimeout(() => setToast(p => ({ ...p, show: false })), 3000);
+            }, []);
 
             const fetchFiles = useCallback(async () => {
-                const res = await fetch('/api/files');
-                const data = await res.json();
-                setFiles(data);
-            }, []);
+                try { const res = await fetch('/api/files'); setFiles(await res.json()); }
+                catch { showToast('Failed to load files', '#ef4444'); }
+            }, [showToast]);
 
             useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
-            const showToast = (msg, color = '#3b82f6') => {
-                setToast({ show: true, msg, color });
-                setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
-            };
-
-            // ── Uppy Initialization ───────────────────────────────────────────────
             useEffect(() => {
-                if (!window.Uppy) return;
-
-                const uppy = new Uppy.Uppy({
-                    id: 'nexus-cloud-uploader',
-                    autoProceed: false,
-                    restrictions: { maxFileSize: 500 * 1024 * 1024 }
-                })
-                .use(Uppy.Dashboard, {
-                    inline: true,
-                    target: '#uppy-dashboard',
-                    width: '100%',
-                    height: 350,
-                    note: 'Synchronizing objects with Nexus Cloud',
-                    proudlyDisplayPoweredByUppy: false,
-                    theme: 'dark'
-                })
-                .use(Uppy.XHRUpload, {
-                    endpoint: '/api/upload',
-                    fieldName: 'file',
-                    limit: 5, // Enable Parallel Uploads
-                    formData: true
-                });
-
+                if (!window.Uppy || uppyRef.current) return;
+                const uppy = new Uppy.Uppy({ autoProceed: false, restrictions: { maxFileSize: 500 * 1024 * 1024 } })
+                    .use(Uppy.Dashboard, {
+                        inline: true, target: '#uppy-dashboard', width: '100%', height: 290,
+                        note: 'Max 500 MB per file · Any format',
+                        proudlyDisplayPoweredByUppy: false, theme: 'dark',
+                        locale: { strings: { dropPasteFiles: 'Drop files here or %{browseFiles}', browseFiles: 'browse' } }
+                    })
+                    .use(Uppy.XHRUpload, { endpoint: '/api/upload', fieldName: 'file', limit: 4, formData: true });
                 uppy.on('upload-success', () => fetchFiles());
-
-                uppy.on('complete', (result) => {
-                    if (result.successful.length > 0) {
-                        showToast('Nexus Cloud synchronized', '#22c55e');
-                    }
+                uppy.on('complete', r => {
+                    if (r.successful.length > 0) showToast(`${r.successful.length} file(s) synced`, '#22c55e');
+                    if (r.failed.length > 0) showToast(`${r.failed.length} upload(s) failed`, '#ef4444');
                 });
+                uppyRef.current = uppy;
+                return () => { uppy.close(); uppyRef.current = null; };
+            }, [fetchFiles, showToast]);
 
-                return () => uppy.close();
-            }, [fetchFiles]);
-
-            const handleRename = async (id, name) => {
-                await fetch('/api/files/' + id, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newName: name })
-                });
-                setModals(m => ({ ...m, rename: null }));
-                fetchFiles();
+            const handleRename = async (id, newName) => {
+                if (!newName?.trim()) return;
+                try {
+                    await fetch(`/api/files/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newName: newName.trim() }) });
+                    setRenameModal(null); fetchFiles(); showToast('File renamed', '#3b82f6');
+                } catch { showToast('Rename failed', '#ef4444'); }
             };
 
-            const handleDelete = async (id) => {
-                await fetch('/api/files/' + id, { method: 'DELETE' });
-                setModals(m => ({ ...m, confirm: null }));
-                fetchFiles();
-                showToast('Object Erased', '#ef4444');
+            const handleDelete = async id => {
+                try {
+                    await fetch(`/api/files/${id}`, { method: 'DELETE' });
+                    setDeleteModal(null); fetchFiles(); showToast('File deleted', '#ef4444');
+                } catch { showToast('Delete failed', '#ef4444'); }
             };
 
             const used = files.reduce((s, f) => s + f.size, 0);
+            const pct = fmt.pct(used, CAP);
+            const typeData = groupByType(files);
             const filtered = files.filter(f => f.originalName.toLowerCase().includes(search.toLowerCase()));
-
-            const groups = {};
-            files.forEach(f => {
-                const c = f.mimeType.startsWith('image/') ? 'Images' : f.mimeType.startsWith('video/') ? 'Videos' : 'Other';
-                groups[c] = (groups[c] || 0) + 1;
-            });
+            const largest = files.length ? files.reduce((a, b) => a.size > b.size ? a : b) : null;
 
             return (
                 <div style={{ display: 'contents' }}>
                     <nav>
-                        <div className="logo"><div className="logo-dot"></div>NEXUS CLOUD</div>
-                        <div className="nav-meta">{fmt.size(used)} / 50 GB</div>
+                        <div className="logo"><div className="logo-dot" />NEXUS CLOUD</div>
+                        <div className="nav-pill">{fmt.size(used)} / 50 GB</div>
                     </nav>
 
                     <div className="app">
                         <aside className="sidebar">
-                            <div className="sidebar-label">Cloud Status</div>
-                            <div className="storage-card">
-                                <div className="storage-numbers">
-                                    <span className="storage-used">{fmt.size(used)}</span>
-                                    <span className="storage-total">of 50 GB</span>
-                                </div>
-                                <div className="bar-track"><div className="bar-fill" style={{ width: (used/(50*1024**3)*100)+'%' }}></div></div>
-                            </div>
-                            <div className="sidebar-label" style={{marginTop:'1.5rem'}}>Categorization</div>
-                            <div className="type-list">
-                                {Object.entries(groups).map(([k,v]) => (
-                                    <div key={k} className="type-row">
-                                        <div className="type-dot" style={{background: k==='Images'?'#818cf8':k==='Videos'?'#f472b6':'#94a3b8'}}></div>
-                                        <div className="type-name">{k}</div>
-                                        <div className="type-count">{v}</div>
+                            <div className="sidebar-inner">
+                                <div>
+                                    <div className="sidebar-section-label">Storage</div>
+                                    <div className="storage-card">
+                                        <div className="storage-top">
+                                            <span className="storage-used">{fmt.size(used)}</span>
+                                            <span className="storage-cap">of 50 GB</span>
+                                        </div>
+                                        <div className="bar-track"><div className="bar-fill" style={{ width: pct + '%' }} /></div>
+                                        <div className="storage-pct">{pct}% used</div>
                                     </div>
-                                ))}
+                                </div>
+                                {typeData.length > 0 && (
+                                    <div>
+                                        <div className="sidebar-section-label">By Type</div>
+                                        <div className="type-list">
+                                            {typeData.map(([label, { count, color }]) => (
+                                                <div key={label} className="type-row">
+                                                    <div className="type-swatch" style={{ background: color }} />
+                                                    <div className="type-label">{label}</div>
+                                                    <div className="type-badge">{count}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <div>
+                                    <div className="sidebar-section-label">Stats</div>
+                                    <div className="quick-stats">
+                                        <div className="stat-row"><span className="stat-key">Total files</span><span className="stat-val">{files.length}</span></div>
+                                        <div className="stat-row"><span className="stat-key">Avg size</span><span className="stat-val">{files.length ? fmt.size(Math.round(used / files.length)) : '—'}</span></div>
+                                        <div className="stat-row"><span className="stat-key">Largest</span><span className="stat-val">{largest ? fmt.size(largest.size) : '—'}</span></div>
+                                    </div>
+                                </div>
                             </div>
                         </aside>
 
                         <main className="main">
-                            {/* Professional Parallel Upload UI */}
-                            <div id="uppy-dashboard"></div>
+                            <div className="uppy-zone"><div id="uppy-dashboard"></div></div>
 
                             <div className="toolbar">
-                                <div style={{fontFamily:'var(--mono)', fontSize:'0.75rem', color:'var(--dim)'}}>{filtered.length} Objects</div>
+                                <div className="toolbar-left">
+                                    <span className="obj-count">{filtered.length} file{filtered.length !== 1 ? 's' : ''}</span>
+                                </div>
                                 <div className="search-wrap">
-                                    <span className="search-icon">🔍</span>
-                                    <input className="search-input" placeholder="Search metadata..." value={search} onChange={e => setSearch(e.target.value)} />
+                                    <span className="search-icon">⌕</span>
+                                    <input className="search-input" placeholder="Search files…" value={search} onChange={e => setSearch(e.target.value)} />
                                 </div>
                             </div>
 
                             <div className="file-list-wrap">
-                                <div className="list-header"><div></div><div>Metadata</div><div>Size</div><div>Uploaded</div><div></div></div>
-                                {filtered.length > 0 ? filtered.map(f => (
-                                    <div className="file-item" key={f._id}>
-                                        <div style={{fontSize:'1.2rem'}}>{getIcon(f.mimeType)}</div>
+                                <div className="col-grid list-header">
+                                    <div></div><div>Name</div><div>Size</div><div>Uploaded</div>
+                                    <div className="list-header-actions">Actions</div>
+                                </div>
+                                {filtered.length > 0 ? filtered.map((f, i) => (
+                                    <div key={f._id} className="col-grid file-item" style={{ animationDelay: `${i * 25}ms` }}>
+                                        <div className="file-type-icon">{getType(f.mimeType).icon}</div>
                                         <div className="file-name-col">
-                                            <div className="file-name">{f.originalName}</div>
+                                            <div className="file-name" title={f.originalName}>{f.originalName}</div>
                                             <div className="file-mime">{f.mimeType}</div>
                                         </div>
                                         <div className="file-size">{fmt.size(f.size)}</div>
                                         <div className="file-date">{fmt.date(f.uploadedAt)}</div>
                                         <div className="file-actions">
-                                            <button className="btn-action" onClick={() => window.location.href='/api/files/'+f._id+'/download'}>DL</button>
-                                            <button className="btn-action" onClick={() => setModals({ ...modals, rename: f })}>RN</button>
-                                            <button className="btn-action del" onClick={() => setModals({ ...modals, confirm: f })}>DEL</button>
+                                            <button className="btn-action" onClick={() => window.location.href = `/api/files/${f._id}/download`} title="Download">↓ DL</button>
+                                            <button className="btn-action" onClick={() => setRenameModal(f)} title="Rename">✎ RN</button>
+                                            <button className="btn-action del" onClick={() => setDeleteModal(f)} title="Delete">✕ DEL</button>
                                         </div>
                                     </div>
                                 )) : (
-                                    <div style={{textAlign:'center', padding:'4rem', color:'var(--muted)', fontSize:'0.85rem'}}>
-                                        // No data synced with Nexus
+                                    <div className="empty-state">
+                                        <div className="empty-glyph">[ ]</div>
+                                        <div className="empty-label">{search ? `no results for "${search}"` : '// no objects synced'}</div>
                                     </div>
                                 )}
                             </div>
                         </main>
                     </div>
 
-                    {/* Modals */}
-                    {modals.rename && (
-                        <div className="modal-overlay open" onClick={e => e.target === e.currentTarget && setModals({ ...modals, rename: null })}>
-                            <div className="modal">
-                                <div className="modal-title">// Object Rename</div>
-                                <input className="modal-input" defaultValue={modals.rename.originalName} autoFocus id="rn-in" onKeyDown={e => e.key==='Enter' && handleRename(modals.rename._id, e.target.value)} />
-                                <div style={{display:'flex', gap:'0.5rem', justifyContent:'flex-end'}}>
-                                    <button className="btn-action" style={{padding:'8px 16px'}} onClick={() => setModals({ ...modals, rename: null })}>Cancel</button>
-                                    <button className="btn-action" style={{padding:'8px 16px', background:'var(--accent)', color:'white', borderColor:'var(--accent)'}} onClick={() => handleRename(modals.rename._id, document.getElementById('rn-in').value)}>Rename</button>
-                                </div>
+                    {/* RENAME MODAL */}
+                    <div className={'modal-overlay' + (renameModal ? ' open' : '')} onClick={e => e.target === e.currentTarget && setRenameModal(null)}>
+                        <div className="modal">
+                            <div className="modal-title">// Rename object</div>
+                            {renameModal && <input className="modal-input" id="rn-input" defaultValue={renameModal.originalName} autoFocus
+                                onKeyDown={e => { if (e.key === 'Enter') handleRename(renameModal._id, e.target.value); if (e.key === 'Escape') setRenameModal(null); }} />}
+                            <div className="modal-row">
+                                <button className="btn-modal" onClick={() => setRenameModal(null)}>Cancel</button>
+                                <button className="btn-modal primary" onClick={() => handleRename(renameModal?._id, document.getElementById('rn-input')?.value)}>Rename</button>
                             </div>
                         </div>
-                    )}
-                    {modals.confirm && (
-                        <div className="modal-overlay open" onClick={e => e.target === e.currentTarget && setModals({ ...modals, confirm: null })}>
-                            <div className="modal" style={{width:'320px'}}>
-                                <div className="modal-title" style={{marginBottom:'10px'}}>Delete Object?</div>
-                                <div style={{fontSize:'0.8rem', color:'var(--dim)', marginBottom:'20px'}}>"{modals.confirm.originalName}" will be erased.</div>
-                                <div style={{display:'flex', gap:'0.5rem', justifyContent:'flex-end'}}>
-                                    <button className="btn-action" style={{padding:'8px 16px'}} onClick={() => setModals({ ...modals, confirm: null })}>Cancel</button>
-                                    <button className="btn-action del" style={{padding:'8px 16px', background:'var(--red)', color:'white', borderColor:'var(--red)'}} onClick={() => handleDelete(modals.confirm._id)}>Delete</button>
-                                </div>
+                    </div>
+
+                    {/* DELETE MODAL */}
+                    <div className={'modal-overlay' + (deleteModal ? ' open' : '')} onClick={e => e.target === e.currentTarget && setDeleteModal(null)}>
+                        <div className="modal" style={{ width: 340 }}>
+                            <div className="modal-title">Delete object?</div>
+                            {deleteModal && <div className="modal-sub"><span style={{ color: 'var(--bright)' }}>"{deleteModal.originalName}"</span> will be permanently erased from Nexus Cloud.</div>}
+                            <div className="modal-row">
+                                <button className="btn-modal" onClick={() => setDeleteModal(null)}>Cancel</button>
+                                <button className="btn-modal danger" onClick={() => handleDelete(deleteModal?._id)}>Delete</button>
                             </div>
                         </div>
-                    )}
+                    </div>
 
                     <div className={'toast' + (toast.show ? ' show' : '')}>
-                        <div className="toast-dot" style={{background: toast.color}}></div>
+                        <div className="toast-dot" style={{ background: toast.color }}></div>
                         {toast.msg}
                     </div>
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
-</html>
 
 </html>
