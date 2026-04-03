@@ -76,13 +76,6 @@ info "Installing npm dependencies…"
 npm install express mongoose multer cors 2>&1 | tail -3
 success "npm dependencies installed"
 
-# ─── pm2 ─────────────────────────────────────────────────────────────────────
-if ! command -v pm2 &>/dev/null; then
-  info "Installing pm2 (process manager)…"
-  npm install -g pm2
-fi
-success "pm2 ready"
-
 # ─── Nginx ───────────────────────────────────────────────────────────────────
 NGINX_CONF="/etc/nginx/sites-available/nexus_cloud"
 info "Configuring Nginx reverse proxy…"
@@ -90,12 +83,12 @@ cat > "$NGINX_CONF" <<'EOF'
 server {
     listen 80;
     server_name _;
-
-    # Allow uploads up to 55 MB (server enforces 50 MB)
-    client_max_body_size 55M;
-
+    
+    # Allow uploads up to 505 MB (matching your 500MB server cap)
+    client_max_body_size 505M;
+    
     location / {
-        proxy_pass         http://127.0.0.1:3000;
+        proxy_pass         http://127.0.0.1:5000;
         proxy_http_version 1.1;
         proxy_set_header   Host              $host;
         proxy_set_header   X-Real-IP         $remote_addr;
@@ -107,6 +100,8 @@ server {
 }
 EOF
 
+# Clean up ALL existing sites to avoid Port 80 conflicts with your other 4 assignments
+rm -f /etc/nginx/sites-enabled/*
 ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && success "Nginx config valid" || error "Nginx config invalid — check logs"
@@ -124,21 +119,13 @@ systemctl enable nginx
 systemctl restart nginx
 success "Nginx running"
 
-# ─── Start app with pm2 ──────────────────────────────────────────────────────
-info "Starting app with pm2…"
-pm2 stop nexus-cloud 2>/dev/null || true
-pm2 start server.js --name nexus-cloud
-pm2 save
-pm2 startup systemd -u "$SUDO_USER" --hp "/home/$SUDO_USER" 2>/dev/null || true
-success "App running via pm2 (auto-restarts on crash/reboot)"
-
 # ─── Summary ─────────────────────────────────────────────────────────────────
 SERVER_IP=$(hostname -I | awk '{print $1}')
 echo ""
 echo -e "${GREEN}  ✔ Setup complete!${NC}"
 echo ""
 echo "  App URL  →  http://${SERVER_IP}"
-echo "  Logs     →  pm2 logs nexus-cloud"
-echo "  Restart  →  pm2 restart nexus-cloud"
-echo "  Status   →  pm2 status"
+echo ""
+echo "  To start the server, run: "
+echo "  node server.js"
 echo ""
