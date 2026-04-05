@@ -1,0 +1,47 @@
+### **Cloud Resource Monitoring - Technical Documentation**
+
+#### **1. Project Overview**
+This application implements a real-time Cloud Monitoring Dashboard to track high-level system metrics (CPU, RAM, Network) for a web server. It provides a visual representation of server health and a "Stresser" engine to simulate peak traffic conditions.
+
+#### **2. Core Monitoring Concepts**
+
+##### **A. CPU Utilization (%)**
+- **Definition**: The percentage of time the Central Processing Unit was actively processing instructions during a specific interval.
+- **Theoretical Insight**: High CPU usage can indicate heavy computation or a bottleneck. Consistent 100% usage leads to latency and request timeouts.
+- **Implementation**: Tracked via `psutil.cpu_percent(interval=1)`.
+
+##### **B. Memory Allocation (RAM)**
+- **Definition**: The amount of physical Random Access Memory currently utilized by active processes.
+- **Resident Set Size (RSS)**: The portion of memory occupied by a process that is held in main memory (RAM).
+- **Thrashing**: Occurs when a system runs out of physical RAM and starts using the disk (Swap) excessively, leading to a massive drop in performance.
+
+##### **C. Network Throughput (I/O)**
+- **Ingress (Received)**: Incoming data traffic to the server.
+- **Egress (Sent)**: Outgoing data traffic from the server.
+- **Heuristic**: Monitoring spikes in Network I/O can help detect potential DDoS attacks or heavy media transfer bottlenecks.
+
+#### **3. Architectural Components**
+
+##### **Reverse Proxy (Nginx)**
+- **Purpose**: We use Nginx on Port 80 to "proxy" requests to our Flask backend on Port 8000.
+- **Benefits**:
+    - **Security**: Masks the internal application server.
+    - **Port Management**: Consolidates all web traffic to the standard Port 80.
+    - **Scalability**: Can handle static file serving and load balancing across multiple application instances.
+
+##### **Asynchronous Processing (Multiprocessing)**
+- **The Stresser Engine**: To simulate 100% CPU usage without freezing the web server, we spawn "Daemon" processes using the `multiprocessing` library. These processes run redundant math calculations in the background, allowing the Flask server's event loop to remain responsive and continue serving the dashboard.
+
+#### **4. Monitoring Cheat Sheet (CLI)**
+When the dashboard is unavailable, use these commands on the Cloud VM:
+- `top`: Interactive real-time system monitor.
+- `htop`: Colorized, user-friendly process viewer.
+- `vmstat 1`: Report virtual memory statistics every second.
+- `iostat`: Monitor CPU and I/O statistics for devices.
+- `netstat -tuln`: List all active network connections and listening ports.
+
+#### **5. Deployment Summary**
+- **Framework**: Python 3 / Flask
+- **Data Hook**: Psutil (System bridge)
+- **Frontend**: Chart.js (Real-time Canvas Rendering)
+- **Proxy**: Nginx (External accessibility)

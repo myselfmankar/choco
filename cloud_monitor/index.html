@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Resource Monitor</title>
+    <!-- Google Fonts: IBM Plex Sans & IBM Plex Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg: #f7f6f2;
+            --surface: #ffffff;
+            --panel: #fdfaf6;
+            --border: #e5e7eb;
+            --text: #334155;
+            --muted: #64748b;
+            --bright: #0f172a;
+            --accent: #2563eb;
+            --accent-dim: rgba(37, 99, 235, 0.05);
+            --red: #dc2626;
+            --green: #16a34a;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .brand {
+            font-family: var(--mono);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--bright);
+        }
+
+        .status-badge {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            background: var(--surface);
+            color: var(--accent);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        .card-value {
+            font-family: var(--mono);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--bright);
+        }
+
+        /* Chart Canvas */
+        .chart-container {
+            height: 180px;
+            margin-top: 1rem;
+        }
+
+        /* Controls Section */
+        .controls {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .controls-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--bright);
+        }
+
+        .controls-desc {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-stress {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 0.8rem 2.5rem;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn-stress:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        .btn-stress.active {
+            background: var(--green);
+        }
+
+        .btn-stress.active:hover {
+            background: #15803d;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card-value {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">Cloud Resource Monitor - Q19</div>
+            <div id="connection-status" class="status-badge">SESSION ACTIVE</div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- CPU Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">CPU Utilization</div>
+                    <div id="cpu-value" class="card-value">0%</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="cpuChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Memory Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Memory Allocation</div>
+                    <div id="mem-value" class="card-value">0%</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="memChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Network Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Network Throughput</div>
+                    <div id="net-value" class="card-value" style="font-size: 0.85rem;">0.0 KB/s</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="netChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="controls-title">Load Simulation System</div>
+            <p class="controls-desc">
+                Engage the Stress Engine to simulate high-compute workloads on all available CPU cores.
+                This will spike resource utilization to demonstrate monitoring responsiveness.
+            </p>
+            <button id="stress-btn" class="btn-stress">Engage Stresser</button>
+        </div>
+    </div>
+
+    <script>
+        // Formatting Utilities
+        const fmtSize = (bytes) => {
+            if (bytes === 0) return '0 B';
+            const k = 1024, sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        };
+
+        // Chart Initialization
+        const chartConfig = (label, color) => ({
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: label,
+                    data: Array(20).fill(0),
+                    borderColor: color,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.3,
+                    fill: { target: 'origin', above: color.replace('1)', '0.05)') }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: '#e5e7eb' },
+                        ticks: { color: '#64748b', font: { family: 'IBM Plex Mono', size: 10 } }
+                    }
+                }
+            }
+        });
+
+        const cpuChart = new Chart(document.getElementById('cpuChart'), chartConfig('CPU', 'rgba(37, 99, 235, 1)'));
+        const memChart = new Chart(document.getElementById('memChart'), chartConfig('RAM', 'rgba(168, 85, 247, 1)'));
+
+        // Net chart needs custom config (no max 100)
+        let netConfig = chartConfig('NET', 'rgba(22, 163, 74, 1)');
+        delete netConfig.options.scales.y.max;
+        const netChart = new Chart(document.getElementById('netChart'), netConfig);
+
+        let lastNetBytes = 0;
+
+        // API Updates
+        const updateStats = async () => {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+
+                // CPU
+                document.getElementById('cpu-value').innerText = `${data.cpu}%`;
+                cpuChart.data.datasets[0].data.push(data.cpu);
+                cpuChart.data.datasets[0].data.shift();
+                cpuChart.update('none');
+
+                // Memory
+                document.getElementById('mem-value').innerText = `${data.memory.percent}%`;
+                memChart.data.datasets[0].data.push(data.memory.percent);
+                memChart.data.datasets[0].data.shift();
+                memChart.update('none');
+
+                // Network (Calculated throughput)
+                const currentNet = data.network.sent + data.network.recv;
+                if (lastNetBytes > 0) {
+                    const diff = (currentNet - lastNetBytes) / 1024; // KB/s (assuming 1s interval)
+                    document.getElementById('net-value').innerText = `${diff.toFixed(1)} KB/s`;
+                    netChart.data.datasets[0].data.push(diff);
+                    netChart.data.datasets[0].data.shift();
+                    netChart.update('none');
+                }
+                lastNetBytes = currentNet;
+
+                // Sync Stress Button State
+                const btn = document.getElementById('stress-btn');
+                if (data.stress_active) {
+                    btn.innerText = 'DISENGAGE STRESSER';
+                    btn.classList.add('active');
+                } else {
+                    btn.innerText = 'ENGAGE STRESSER';
+                    btn.classList.remove('active');
+                }
+
+            } catch (err) {
+                console.error("Monitoring session disconnected:", err);
+                document.getElementById('connection-status').innerText = 'SESSION DISCONNECTED';
+                document.getElementById('connection-status').style.borderColor = 'var(--red)';
+                document.getElementById('connection-status').style.color = 'var(--red)';
+            }
+        };
+
+        // Stress Toggle
+        document.getElementById('stress-btn').addEventListener('click', async () => {
+            const res = await fetch('/api/stress/toggle', { method: 'POST' });
+            await res.json();
+            updateStats();
+        });
+
+        // Initialize Loop
+        setInterval(updateStats, 1000);
+        updateStats();
+
+    </script>
+</body>
+
+</html>
