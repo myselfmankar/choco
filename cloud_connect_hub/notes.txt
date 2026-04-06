@@ -32,3 +32,14 @@
 - `chmod 700 <dir>`: Restrict directory access to only the instance owner.
 - `chown <user>:<group> <file>`: Assign explicit ownership for secure file sharing.
 - `scp <file> <user>@<private_ip>:<path>`: Alternative CLI-based secure file transfer.
+
+#### **6. CLI Backup: The Command-Line Mechanism**
+While the **Cloud-Connect Hub** provides the "System" (UI, Logging, Permissions), you may be asked to demonstrate the underlying CLI mechanism. 
+
+- **Secure Transfer**: `scp assignment.txt azureuser@10.0.0.5:/home/azureuser`
+- **Internal Shell Access**: `ssh azureuser@10.0.0.5`
+- **Manual Permission Change**: `chmod 600 received/assignment.txt`
+- **Check All Processes**: `ps -aux | grep python`
+
+> [!TIP]
+> **Difference for Examiner**: "SCP is a tool for moving files, but our **Cloud-Connect Hub** is an **Orchestration System** that manages the destination permissions, records the logging telemetry, and provides a centralized resource monitor across the Virtual Network."
