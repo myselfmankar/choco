@@ -36,7 +36,8 @@
 #### **6. CLI Backup: The Command-Line Mechanism**
 While the **Cloud-Connect Hub** provides the "System" (UI, Logging, Permissions), you may be asked to demonstrate the underlying CLI mechanism. 
 
-- **Secure Transfer**: `scp assignment.txt azureuser@10.0.0.5:/home/azureuser`
+- **Secure Transfer (Push)**: `scp assignment.txt azureuser@10.0.0.5:/home/azureuser`
+- **Secure Download (Pull)**: `scp azureuser@<public_ip>:/home/azureuser/report.pdf ./downloads/`
 - **Internal Shell Access**: `ssh azureuser@10.0.0.5`
 - **Manual Permission Change**: `chmod 600 received/assignment.txt`
 - **Check All Processes**: `ps -aux | grep python`
