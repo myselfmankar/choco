@@ -1,0 +1,34 @@
+### **Cloud-Connect Hub: Multi-Instance Connectivity & Theory**
+
+#### **1. Inter-VM Networking (Azure VPC / VNet)**
+- **User Question**: If 2 VMs are under the same Resource Manager/Group, are they in the same VPC?
+- **Answer**: 
+    - **In Azure**, VMs created in the same **Virtual Network (VNet)** can communicate via their **Private IP addresses** by default. No complex routing is required.
+    - **Crucial Check**: You must ensure the **Network Security Group (NSG)** attached to both VMs allows **Inbound** and **Outbound** traffic on your chosen ports (e.g., 8000, 8001). 
+    - **Private IP vs. Public IP**: 
+        - For "Internal Transfer" (Q17), always use the **Private IP** (e.g., `10.0.0.4`).
+        - For "Remote Monitoring" (Q13) from your laptop, use the **Public IP** (`20.174.x.x`).
+
+#### **2. Peer-to-Peer (P2P) Hub Architecture**
+- **Definition**: A distributed architecture where each node acts as both a "Client" (Pusher) and a "Server" (Receiver).
+- **Relay Logic**: 
+    - **Node A** takes a file from the browser and sends an HTTP POST request to **Node B**.
+    - **Node B** validates the request and stores the file in a restricted directory.
+- **Secure File Sharing (Q6, Q17)**: We satisfy this by using encrypted HTTP traffic (internal VNet) and enforcing **0o600 (Owner Read/Write)** permissions on receipt.
+
+#### **3. Centralized Log Monitoring (Q13)**
+- **Telemetry**: The process of collecting data from remote points and transmitting it to a central station for monitoring.
+- **Aggregator**: Our `log_hub` (integrated in `app.py`) stores all incoming/outgoing "Handshakes" in a `system_connectivity.log` file.
+- **Visualization**: The Web UI polls the `/api/logs` endpoint periodically to show real-time connectivity events across the distributed network.
+
+#### **4. Distributed File Backup (Q14)**
+- **Incremental Backup**: Only syncing files that have changed since the last backup.
+- **Implementation**: The "Sync to Peer" button allows a user to manually select and "Push" the most recent versions of critical resources to a remote hot-standby VM.
+
+#### **5. Mock Test Cheat Sheet (CLI Tools)**
+- `ping <private_ip>`: Verify basic connectivity within the VPC.
+- `telnet <private_ip> <port>`: Test if the port is open and reachable.
+- `ssh-keygen -t rsa`: Generate public/private key pairs for SSH-based transfers.
+- `chmod 700 <dir>`: Restrict directory access to only the instance owner.
+- `chown <user>:<group> <file>`: Assign explicit ownership for secure file sharing.
+- `scp <file> <user>@<private_ip>:<path>`: Alternative CLI-based secure file transfer.

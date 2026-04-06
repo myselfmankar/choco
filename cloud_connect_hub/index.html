@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud-Connect Hub - Inter-VM Connectivity</title>
+    <!-- Google Fonts: IBM Plex Sans & Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #fdfbf7;
+            --surface: #ffffff;
+            --panel: #fcf9f2;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent: #334155;
+            --accent-glow: rgba(51, 65, 85, 0.05);
+            --red: #b91c1c;
+            --green: #15803d;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 3rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 3.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .brand-section h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-family: var(--mono);
+        }
+
+        .brand-section p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+
+        /* Dashboard Architecture */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2.5rem;
+        }
+
+        /* Sidebar Controls */
+        .controls-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            height: fit-content;
+        }
+
+        .section-label {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.2rem;
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-style {
+            width: 100%;
+            padding: 0.7rem;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-style:focus { border-color: var(--accent); }
+
+        .peer-status {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem;
+            background: var(--panel);
+            border-radius: 4px;
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+        .status-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+        /* Main Workspace */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sync-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        .sync-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .sync-header h2 { font-size: 1.1rem; font-weight: 600; }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--panel);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-zone:hover { border-color: var(--accent); background: white; }
+
+        .upload-zone p { font-size: 0.9rem; color: var(--text-muted); }
+
+        #file-info {
+            margin-top: 1rem;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--accent);
+            display: none;
+        }
+
+        .action-bar { padding-top: 1.5rem; display: flex; gap: 1rem; }
+
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 6px;
+            font-family: var(--sans);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid var(--accent);
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #1e293b; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Log Monitor Dashboard (Q13) */
+        .log-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-window {
+            background: #fafaf9;
+            height: 300px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            overflow-y: auto;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .log-entry {
+            border-bottom: 1px solid #f1f1ee;
+            padding-bottom: 0.4rem;
+        }
+
+        .timestamp { color: var(--text-muted); margin-right: 1rem; }
+
+        @media (max-width: 900px) {
+            .dash-grid { grid-template-columns: 1fr; }
+            body { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand-section">
+                <h1>Cloud-Connect Hub</h1>
+                <p>Peer-to-Peer Inter-VM Infrastructure Management</p>
+            </div>
+            <div class="brand-section">
+                <span class="section-label">Instance Status: Healthy</span>
+            </div>
+        </header>
+
+        <div class="dash-grid">
+            <!-- Sidebar Connectivity (Q9, Q17) -->
+            <aside class="controls-panel">
+                <span class="section-label">Target Infrastructure</span>
+                
+                <div class="input-group">
+                    <label>Remote Peer IP</label>
+                    <input type="text" id="target-ip" class="input-style" placeholder="e.g. 10.0.0.4" value="127.0.0.1">
+                </div>
+
+                <div class="input-group">
+                    <label>Transfer Port</label>
+                    <input type="number" id="target-port" class="input-style" placeholder="8001" value="8001">
+                </div>
+
+                <div class="peer-status">
+                    <div id="status-dot" class="status-dot"></div>
+                    <span id="status-text">Target Synchronizing...</span>
+                </div>
+            </aside>
+
+            <!-- Main Workspace Operation (Q6, Q14, Q17) -->
+            <main class="workspace">
+                <section class="sync-card">
+                    <div class="sync-header">
+                        <h2>Manual Object Synchronization</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Manually push files to remote instances with secure permission enforcement.</p>
+                    </div>
+
+                    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+                        <p>Select or drag file for peer transfer</p>
+                        <div id="file-info">No file selected</div>
+                    </div>
+                    <input type="file" id="file-input" style="display: none;">
+
+                    <div class="action-bar">
+                        <button id="sync-btn" class="btn btn-primary">Sync to Peer Instance</button>
+                    </div>
+                </section>
+
+                <!-- Distributed Log Monitor (Q13) -->
+                <section class="log-panel">
+                    <div class="log-header">
+                        <span class="section-label" style="margin-bottom: 0;">Remote Log Telemetry</span>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Real-time Activity Stream</div>
+                    </div>
+
+                    <div id="log-window" class="log-window">
+                        <!-- Logs injected here -->
+                        <div class="log-entry">Waiting for system logs...</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const syncBtn = document.getElementById('sync-btn');
+        const logWindow = document.getElementById('log-window');
+
+        // File Selection Feedback
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileInfo.innerText = `READY: ${fileInput.files[0].name}`;
+                fileInfo.style.display = 'block';
+            }
+        });
+
+        // Peer Health Check (Q9)
+        const checkHealth = async () => {
+            const ip = document.getElementById('target-ip').value;
+            const port = document.getElementById('target-port').value;
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+
+            try {
+                const res = await fetch('/api/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, port })
+                });
+                const data = await res.json();
+
+                if (data.status === 'online') {
+                    dot.classList.add('online');
+                    text.innerText = 'Peer Instance Online';
+                } else {
+                    dot.classList.remove('online');
+                    text.innerText = 'Peer Instance Offline';
+                }
+            } catch (e) {
+                dot.classList.remove('online');
+                text.innerText = 'Protocol Disconnected';
+            }
+        };
+
+        // Manual Transfer Trigger (Q17, Q6)
+        syncBtn.addEventListener('click', async () => {
+            if (fileInput.files.length === 0) return alert('Select an object for transfer.');
+
+            const ip = document.getElementById('target-ip').value;
+            const port = document.getElementById('target-port').value;
+
+            syncBtn.disabled = true;
+            syncBtn.innerText = 'Syncing...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('target_ip', ip);
+            formData.append('target_port', port);
+
+            try {
+                const res = await fetch('/api/transfer', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.status === 'Success') {
+                    alert('Sync Successful: Resource pushed to remote instance.');
+                } else {
+                    alert('Sync Failed: ' + data.error);
+                }
+            } catch (e) {
+                alert('Connection Error: Peer is unreachable.');
+            } finally {
+                syncBtn.disabled = false;
+                syncBtn.innerText = 'Sync to Peer Instance';
+                fileInfo.style.display = 'none';
+                fileInput.value = '';
+            }
+        });
+
+        // Log Stream (Q13)
+        const fetchLogs = async () => {
+            try {
+                const res = await fetch('/api/logs');
+                const data = await res.json();
+                
+                logWindow.innerHTML = data.logs.map(log => `
+                    <div class="log-entry">
+                        ${log}
+                    </div>
+                `).join('');
+            } catch (e) {}
+        };
+
+        // Loops
+        setInterval(checkHealth, 3000);
+        setInterval(fetchLogs, 2000);
+        
+        checkHealth();
+        fetchLogs();
+
+    </script>
+</body>
+</html>
