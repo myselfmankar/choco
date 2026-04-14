@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xpense Hub SaaS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg: #fcfaf7;
+            --card-bg: #ffffff;
+            --accent: #242c34;
+            --give: #10b981;
+            --take: #ef4444;
+            --text-main: #242c34;
+            --text-muted: #71717a;
+            --border: #e4e4e7;
+            --input-bg: #fafafa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--input-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Balance Widgets */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .value.positive { color: var(--give); }
+        .value.negative { color: var(--take); }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group { margin-bottom: 1.25rem; }
+        
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: #52525b;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            background: var(--input-bg);
+            outline: none;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+
+        .type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--input-bg);
+            padding: 0.3rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            background: none;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .type-btn.active {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        button.primary-btn {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Feed */
+        .entry {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .entry-title { font-weight: 600; }
+        .entry-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .tag { padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600; text-transform: uppercase; font-size: 0.65rem; }
+        .tag.expense { background: #f4f4f5; color: #71717a; }
+        .tag.give { background: #ecfdf5; color: var(--give); }
+        .tag.take { background: #fef2f2; color: var(--take); }
+
+        .wa-btn { color: #25d366; font-size: 1.25rem; text-decoration: none; margin-right: 0.5rem; opacity: 0.6; }
+        .del-btn { color: #d1d5db; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        .del-btn:hover { color: var(--take); }
+
+        @media (max-width: 850px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app-container">
+        <header>
+            <div>
+                <h1>Xpense Hub</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Pro SaaS Analytics Edition</p>
+            </div>
+            <button class="btn-secondary" onclick="downloadReport()">📄 Download Report</button>
+        </header>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="label">Net Balance</div>
+                <div class="value" id="net-balance">₹ 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Owed to me</div>
+                <div class="value positive" id="owed-to-me">₹ 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">I Owe</div>
+                <div class="value negative" id="owe-to-others">₹ 0</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid no-print">
+            <!-- Add Transaction -->
+            <div class="card">
+                <h2>Add Transaction</h2>
+                <div class="type-selector">
+                    <button class="type-btn active" onclick="setType('Expense', this)">Expense</button>
+                    <button class="type-btn" onclick="setType('Give', this)">I Gave</button>
+                    <button class="type-btn" onclick="setType('Take', this)">I Took</button>
+                </div>
+
+                <form id="tx-form">
+                    <input type="hidden" id="type" value="Expense">
+                    <div class="input-group">
+                        <label>Description</label>
+                        <input type="text" id="title" placeholder="Starbucks, Rent, Sam..." required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="input-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="amount" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label id="person-label">With Person</label>
+                            <input type="text" id="person" placeholder="Self">
+                        </div>
+                    </div>
+                    <div class="input-group" id="category-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="Food">Food & Drinks</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Health">Health</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="primary-btn">Save Entry</button>
+                </form>
+            </div>
+
+            <!-- Analytics Stack -->
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="card" style="margin-bottom:0;">
+                    <h2 style="margin-bottom: 0.5rem;">Category Dist.</h2>
+                    <div class="chart-container" style="height:200px;">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+                <div class="card" style="margin-bottom:0;">
+                    <h2 style="margin-bottom: 0.5rem;">Person Dist.</h2>
+                    <div class="chart-container" style="height:200px;">
+                        <canvas id="personChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feed" id="tx-feed">
+            <!-- Transactions -->
+        </div>
+    </div>
+
+    <script>
+        let categoryChart;
+        let personChart;
+
+        function setType(type, btn) {
+            document.getElementById('type').value = type;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            document.getElementById('category-group').style.display = (type === 'Expense') ? 'block' : 'none';
+            document.getElementById('person-label').innerText = "Person(s) - Use comma for group";
+        }
+
+        async function fetchAll() {
+            try {
+                const res = await fetch('/api/expenses');
+                if(!res.ok) throw new Error("DB Error");
+                const expenses = await res.json();
+                renderFeed(expenses);
+
+                const statsRes = await fetch('/api/stats');
+                const stats = await statsRes.json();
+                updateStats(stats);
+            } catch (err) {
+                console.error("Fetch Error:", err);
+            }
+        }
+
+        function updateStats(stats) {
+            const fmt = (v) => `₹ ${v ? v.toLocaleString() : 0}`;
+            document.getElementById('net-balance').innerText = fmt(stats.net_balance);
+            document.getElementById('net-balance').className = 'value ' + (stats.net_balance >= 0 ? 'positive' : 'negative');
+            document.getElementById('owed-to-me').innerText = fmt(stats.you_are_owed);
+            document.getElementById('owe-to-others').innerText = fmt(stats.you_owe);
+            
+            updateCharts(stats.category_totals || {}, 'expenseChart', categoryChart, 'No category data');
+            updateCharts(stats.person_totals || {}, 'personChart', personChart, 'No person data');
+        }
+
+        function updateCharts(dataObj, canvasId, chartVar, emptyText) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            let labels = Object.keys(dataObj);
+            // Hide "Self" from person chart to keep the graph focused on friends
+            if (canvasId === 'personChart') {
+                labels = labels.filter(l => l !== 'Self');
+            }
+            const data = labels.map(l => dataObj[l]);
+
+            if (canvasId === 'expenseChart' && categoryChart) categoryChart.destroy();
+            if (canvasId === 'personChart' && personChart) personChart.destroy();
+
+            if (labels.length === 0) {
+                ctx.font = "14px 'Outfit'";
+                ctx.fillStyle = "#94a3b8";
+                ctx.textAlign = "center";
+                ctx.fillText(emptyText, 150, 100);
+                return;
+            }
+
+            const newChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#242c34', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6366f1'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, color: '#71717a', font: { family: 'Outfit', size: 11 } } } }
+                }
+            });
+
+            if (canvasId === 'expenseChart') categoryChart = newChart;
+            if (canvasId === 'personChart') personChart = newChart;
+        }
+
+        function renderFeed(expenses) {
+            const feed = document.getElementById('tx-feed');
+            if (!expenses || expenses.length === 0) {
+                feed.innerHTML = '<div class="card" style="text-align:center; color:var(--text-muted);">No transactions found. Start by adding one!</div>';
+                return;
+            }
+            feed.innerHTML = expenses.map(e => {
+                const type = e.type || 'Expense';
+                const person = e.person || 'Self';
+                const amount = e.amount || 0;
+                
+                // create nice separate chips if someone didn't use auto-split
+                const personChips = person.split(',').map(p => p.trim()).filter(p=>p).map(p => {
+                    return p !== 'Self' ? `<span class="tag" style="background:#eff6ff; color:#3b82f6; text-transform:none;">${p}</span>` : '';
+                }).join(' ');
+
+                const waSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+                const waLink = `https://api.whatsapp.com/send/?text=${encodeURIComponent('Reminder: You owe me ₹' + amount + ' for ' + e.title)}&lang=en`;
+
+                return `
+                <div class="entry">
+                    <div class="entry-left">
+                        <span class="entry-title">${e.title}</span>
+                        <div class="entry-meta">
+                            <span class="tag ${type.toLowerCase()}">${type}</span>
+                            ${personChips}
+                            <span>${e.date}</span>
+                        </div>
+                    </div>
+                    <div class="entry-right" style="display:flex; align-items:center; gap:0.5rem;">
+                        <span class="entry-amt ${type === 'Take' ? 'negative' : (type === 'Give' ? 'positive' : '')}">
+                            ${type === 'Take' ? '-' : ''}₹ ${amount.toLocaleString()}
+                        </span>
+                        ${type !== 'Expense' ? `<a href="${waLink}" target="_blank" class="wa-btn" title="Send WhatsApp Reminder">${waSvg}</a>` : ''}
+                        <button class="del-btn" onclick="deleteTx('${e._id}')">✕</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        async function deleteTx(id) {
+            if(!confirm('Confirm deletion?')) return;
+            await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+            fetchAll();
+        }
+
+        document.getElementById('tx-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('type').value;
+            const title = document.getElementById('title').value;
+            const amt = parseFloat(document.getElementById('amount').value);
+            const personInput = document.getElementById('person').value || 'Self';
+            const cat = document.getElementById('category').value;
+
+            // Automatically split if multiple names are detected
+            if (personInput.includes(',')) {
+                const names = personInput.split(',').map(n => n.trim()).filter(n => n);
+                
+                if (type === 'Expense') {
+                    const totalPeople = names.length + 1;
+                    const part = amt / totalPeople;
+                    await save('Expense', title + ' (My Share)', part, 'Self', cat);
+                    for (let n of names) { 
+                        await save('Give', title + ' (Split)', part, n, cat); 
+                    }
+                } else {
+                    const part = amt / names.length;
+                    for (let n of names) { 
+                        await save(type, title, part, n, cat); 
+                    }
+                }
+            } else {
+                await save(type, title, amt, personInput, cat);
+            }
+            
+            e.target.reset();
+            setType('Expense', document.querySelector('.type-btn'));
+            fetchAll();
+        });
+
+        async function save(type, title, amount, person, category) {
+            await fetch('/api/expenses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, title, amount, person, category })
+            });
+        }
+
+        function downloadReport() {
+            const element = document.getElementById('app-container');
+            const opt = {
+                margin: 0.5,
+                filename: `Xpense_Report_${new Date().toLocaleDateString()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            const style = document.createElement('style');
+            style.id = 'temp-pdf-style'; 
+            style.innerHTML = '.no-print, .btn-secondary, .del-btn, .wa-btn { display: none !important; }';
+            document.head.appendChild(style);
+
+            html2pdf().set(opt).from(element).save().then(() => style.remove());
+        }
+
+        fetchAll();
+    </script>
+</body>
+</html>

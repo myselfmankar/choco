@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root {
+    --color-ppt-bg: #1F3A3D;
+    --color-glass-border: rgba(255, 255, 255, 0.12);
+    --color-glass-bg: rgba(255, 255, 255, 0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { 
+    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif); 
+    background: var(--color-background-primary, #ffffff); 
+    padding: 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+  .toolbar { display: flex; justify-content: flex-end; width: 100%; max-width: 1000px; margin-bottom: 24px; }
+  .dl-btn {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: 8px;
+    padding: 8px 16px; cursor: pointer;
+    transition: all .2s;
+  }
+  .dl-btn:hover { background: var(--color-background-tertiary); color: var(--color-text-primary); transform: translateY(-1px); }
+  .dl-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .diagram-wrap {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 16px;
+    padding: 60px 40px;
+    overflow: visible;
+    width: 100%;
+    max-width: 1100px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  }
+
+  .pipeline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  /* ── Node ── */
+  .node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    width: 140px;
+    border-radius: 14px;
+    border: 0.5px solid;
+    padding: 18px 12px;
+    cursor: default;
+    transition: all .2s;
+    position: relative;
+    z-index: 2;
+  }
+  .node:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  .icon-wrap {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .icon-wrap svg { width: 22px; height: 22px; }
+
+  .node-text { flex: 1; width: 100%; }
+  .node-title { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .node-sub   { font-size: 11px; margin-top: 4px; line-height: 1.4; opacity: 0.8; }
+
+  .badge {
+    position: absolute;
+    top: -10px;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  /* ── Connector ── */
+  .connector {
+    display: flex;
+    align-items: center;
+    width: 40px;
+    height: auto;
+    position: relative;
+  }
+  .connector-line {
+    height: 1.5px;
+    flex: 1;
+    background: var(--color-border-secondary);
+  }
+  .connector-arrow {
+    width: 0; height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--color-border-secondary);
+  }
+
+  /* ── Output row/column ── */
+  .outputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 0;
+  }
+  .output-node {
+    width: 160px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 12px;
+    border: 0.5px solid;
+    padding: 10px 14px;
+    text-align: left;
+    cursor: default;
+    transition: all .2s;
+  }
+  .output-node:hover { transform: translateX(3px); }
+  .output-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .output-icon svg { width: 16px; height: 16px; }
+  .output-content { flex: 1; }
+  .output-title { font-size: 12px; font-weight: 600; }
+  .output-sub   { font-size: 10px; opacity: 0.8; }
+
+  /* ── Fan connector (horizontal to vertical) ── */
+  .fan-wrap {
+    width: 60px;
+    height: 180px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .fan-svg { width: 100%; height: 100%; }
+
+  /* ── Color themes (Light) ── */
+  .n-input  { background: #EAF3DE; border-color: #639922; }
+  .n-input .icon-wrap { background: #C0DD97; color: #3B6D11; }
+  .n-input .badge      { background: #639922; color: #fff; }
+
+  .n-blue   { background: #E6F1FB; border-color: #378ADD; }
+  .n-blue .icon-wrap { background: #B5D4F4; color: #0C447C; }
+  .n-blue .badge      { background: #378ADD; color: #fff; }
+
+  .n-purple { background: #EEEDFE; border-color: #7F77DD; }
+  .n-purple .icon-wrap { background: #CECBF6; color: #3C3489; }
+  .n-purple .badge      { background: #7F77DD; color: #fff; }
+
+  .n-teal   { background: #E1F5EE; border-color: #1D9E75; }
+  .n-teal .icon-wrap { background: #9FE1CB; color: #085041; }
+  .n-teal .badge      { background: #1D9E75; color: #fff; }
+
+  .n-amber  { background: #FAEEDA; border-color: #BA7517; }
+  .n-amber .icon-wrap { background: #FAC775; color: #633806; }
+  .n-amber .badge      { background: #BA7517; color: #fff; }
+
+  .o-video { background: #FAECE7; border-color: #D85A30; }
+  .o-pdf   { background: #EEEDFE; border-color: #7F77DD; }
+  .o-code  { background: #E1F5EE; border-color: #1D9E75; }
+
+  /* ── Dark Mode / PPT Theme ── */
+  @media (prefers-color-scheme: dark) {
+    body { background: #121212; }
+    
+    .diagram-wrap { 
+      background: var(--color-ppt-bg); 
+      border-color: rgba(255,255,255,0.1);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .node, .output-node {
+      background: var(--color-glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-color: var(--color-glass-border);
+    }
+
+    .node-title, .output-title { color: #fff; }
+    .node-sub, .output-sub { color: rgba(255,255,255,0.6); }
+
+    .connector-line { background: rgba(255,255,255,0.2); }
+    .connector-arrow { border-left-color: rgba(255,255,255,0.2); }
+    .fan-svg path, .fan-svg line { stroke: rgba(255,255,255,0.2); }
+
+    /* Theme colors with glass accent */
+    .n-input { border-left: 4px solid #639922; }
+    .n-input .icon-wrap { background: rgba(99, 153, 34, 0.2); color: #C0DD97; }
+    .n-input .badge { background: #639922; }
+
+    .n-blue { border-left: 4px solid #378ADD; }
+    .n-blue .icon-wrap { background: rgba(55, 138, 221, 0.2); color: #B5D4F4; }
+    .n-blue .badge { background: #378ADD; }
+
+    .n-purple { border-left: 4px solid #7F77DD; }
+    .n-purple .icon-wrap { background: rgba(127, 119, 221, 0.2); color: #CECBF6; }
+    .n-purple .badge { background: #7F77DD; }
+
+    .n-teal { border-left: 4px solid #1D9E75; }
+    .n-teal .icon-wrap { background: rgba(29, 158, 117, 0.2); color: #9FE1CB; }
+    .n-teal .badge { background: #1D9E75; }
+
+    .n-amber { border-left: 4px solid #BA7517; }
+    .n-amber .icon-wrap { background: rgba(186, 117, 23, 0.2); color: #FAC775; }
+    .n-amber .badge { background: #BA7517; }
+
+    .o-video { border-left: 4px solid #D85A30; }
+    .o-video .output-icon { background: rgba(216, 90, 48, 0.2); color: #F5C4B3; }
+    
+    .o-pdf { border-left: 4px solid #7F77DD; }
+    .o-pdf .output-icon { background: rgba(127, 119, 221, 0.2); color: #CECBF6; }
+
+    .o-code { border-left: 4px solid #1D9E75; }
+    .o-code .output-icon { background: rgba(29, 158, 117, 0.2); color: #9FE1CB; }
+  }
+</style>
+</head>
+<body>
+<h2 class="sr-only">Course content processing pipeline: from input data through RAG, slide creation, code generation, and audio synthesis, producing video, PDF, and code outputs.</h2>
+
+<div class="toolbar">
+  <button class="dl-btn" onclick="downloadPNG()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download PNG
+  </button>
+</div>
+
+<div class="diagram-wrap" id="diagram">
+  <div class="pipeline">
+
+    <!-- Input -->
+    <div class="node n-input">
+      <span class="badge">Source</span>
+      <div class="icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="node-text">
+        <div class="node-title">Input Data</div>
+        <div class="node-sub">Syllabus & Materials</div>
+      </div>
+    </div>
+
+    <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+    <!-- RAG -->
+    <div class="node n-blue">
+      <span class="badge">RAG</span>
+      <div class="icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      </div>
+      <div class="node-text">
+        <div class="node-title">RAG Grounding</div>
+        <div class="node-sub">Retrieval-augmented knowledge retrieval</div>
+      </div>
+    </div>
+
+    <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+    <!-- SCN -->
+    <div class="node n-purple">
+      <span class="badge">SCN</span>
+      <div class="icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="node-text">
+        <div class="node-title">Slide Creation</div>
+        <div class="node-sub">Layout & Visuals</div>
+      </div>
+    </div>
+
+    <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+    <!-- Code gen -->
+    <div class="node n-teal">
+      <span class="badge">CGN</span>
+      <div class="icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </div>
+      <div class="node-text">
+        <div class="node-title">Code Gen</div>
+        <div class="node-sub">Exercises & Labs</div>
+      </div>
+    </div>
+
+    <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+    <!-- Audio -->
+    <div class="node n-amber">
+      <span class="badge">TTS</span>
+      <div class="icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </div>
+      <div class="node-text">
+        <div class="node-title">Audio Synthesis</div>
+        <div class="node-sub">TTS Narration</div>
+      </div>
+    </div>
+
+    <!-- Fan connector -->
+    <div class="fan-wrap">
+      <svg class="fan-svg" viewBox="0 0 60 180" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="var(--color-border-secondary)" stroke-width="1.5">
+        <path d="M0 90 H30 M30 25 V155 M30 25 H60 M30 90 H60 M30 155 H60"/>
+        <path d="M54 20 L60 25 L54 30 M54 85 L60 90 L54 95 M54 150 L60 155 L54 160" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Outputs -->
+    <div class="outputs">
+      <div class="output-node o-video">
+        <div class="output-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </div>
+        <div class="output-content">
+          <div class="output-title">Video Content</div>
+          <div class="output-sub">Narrated Slides</div>
+        </div>
+      </div>
+      <div class="output-node o-pdf">
+        <div class="output-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="output-content">
+          <div class="output-title">PDF Deck</div>
+          <div class="output-sub">Printable Slides</div>
+        </div>
+      </div>
+      <div class="output-node o-code">
+        <div class="output-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="output-content">
+          <div class="output-title">Code Assets</div>
+          <div class="output-sub">Labs & Exercises</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .pipeline -->
+</div><!-- .diagram-wrap -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function downloadPNG() {
+  const el = document.getElementById('diagram');
+  const btn = document.querySelector('.dl-btn');
+  btn.textContent = 'Generating…';
+  btn.disabled = true;
+
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const bg = dark ? '#1F3A3D' : '#ffffff';
+
+  html2canvas(el, {
+    backgroundColor: bg,
+    scale: 2,
+    useCORS: true,
+    logging: false
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'course-pipeline-architecture.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PNG`;
+    btn.disabled = false;
+  }).catch(() => {
+    btn.textContent = 'Try again';
+    btn.disabled = false;
+  });
+}
+</script>
+</body>
+</html>
