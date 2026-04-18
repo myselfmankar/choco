@@ -1,44 +1,49 @@
-### **LP-II Mock Test 1 – Problem Statements**
+### **1. AI & Chatbot (Logic Based)**
+* ** 1:** DFS and BFS implementation using undirected graphs (Recursive).
+* ** 2:** A* Algorithm for game search problems.
+* ** 3:** Constraint Satisfaction Problem (N-Queens or Graph Coloring) using Branch and Bound/Backtracking.
+* ** 4:** Elementary Rule-based & GUI-based Chatbot for customer interaction.
+* ** 5:** Greedy Search Algorithms (Selection Sort, MST, Prim’s, Kruskal’s, Dijkstra’s, Job Scheduling).
+* ** 6:** Expert Systems (Information Management, Hospitals, Help desks, Employee evaluation, Stock market, or Airline scheduling).
 
-### **AI & Chatbot (Logic Based)**
-1. Implement Depth First Search (DFS) and Breadth First Search (BFS) on an undirected graph using a recursive algorithm to traverse all vertices.
-2. Implement the A* algorithm for any game search problem.
-3. Solve a Constraint Satisfaction Problem using Branch and Bound and Backtracking (e.g., N-Queens or Graph Coloring).
-4. Develop an elementary chatbot for a customer interaction application.
+---
 
-### **Static Deployment (Simple Web Server)**
-5. Design and deploy a static website on a cloud VM/instance with proper server and networking configuration.
-11. Deploy a static website with domain/public IP access.
-16. Configure a secure web server for public access with restricted ports and secure administration.
+### **2. Static Deployment (Simple Web Server)**
+* ** 7:** Design and deploy a static website on a cloud VM with public access and remote updates.
+* ** 12:** Deploy a static website on a cloud server via Public IP or Domain Name.
 
-### **Database-Driven Cloud Apps (Full-Stack CRUD)**
-7. Deploy a full-stack online blog application (frontend, backend, database) on a cloud platform.
-8. Develop a cloud-based student record management system with database and API support.
-10. Deploy an e-commerce web application with backend services and database integration.
-12. Deploy a MERN-based task management application.
-15. Deploy a cloud-based to-do list manager with backend database support.
-18. Deploy an online event registration system with database storage.
-20. Develop a personal cloud storage application for file upload and management.
+---
 
-### **Multi-Instance & Connectivity (Inter-VM Communication)**
-6. Create a secure file-sharing system between cloud instances with proper access permissions.
-9. Create a multi-instance communication system for exchanging files/messages within a virtual network.
-13. Build a remote log monitoring system using multiple cloud VMs and a central server.
-14. Implement a distributed file backup system between multiple cloud instances.
-17. Create an internal file transfer system using secure protocols between VMs.
+### **3. Database-Driven Cloud Ap (Full-Stack CRUD - MERN)**
+* ** 9:** **Online Blog Application:** Deploy frontend, backend, and database to manage posts.
+* ** 10:** **Student Record Management System:** Web app with database and API for CRUD operations.
+* ** 11:** **E-Commerce Web Application:** MERN stack deployment for product browsing and purchase simulation.
+* ** 13:** **Task Management Application:** MERN-based system for task CRUD operations.
+* ** 14:** **To-Do List Manager:** Full-stack MERN application with cloud-hosted database.
+* ** 15:** **Online Event Registration System:** MERN application for capturing and storing user registration details.
 
-### **Cloud Monitoring**
-19. Monitor resource usage (CPU, memory, network) on a cloud server hosting a web app.
+---
 
-### **Salesforce Apex / LWC Management Systems**
-21. Develop a menu-driven Student Management System using Salesforce Apex.
-22. Develop a menu-driven Employee Management System in Salesforce.
-23. Create a menu-driven Bank Account Management System.
-24. Design a Product Inventory Management System.
-25. Develop a Course Registration System.
-26. Develop a Student Management Lightning Application with validation rules (Marks, Roll Number, Email).
-27. Develop an Employee Management Lightning Web Component with validations (Name, Salary, Email, Date).
+### **4. Multi-Instance & Connectivity (Inter-VM Communication)**
+* ** 8:** **Secure File Sharing:** Create a virtual network with two VMs to transfer files securely with proper permissions.
 
-### **Salesforce Services**
-28. Develop a console-based Apex program to send email using Salesforce email services (with/without attachment).
-29. Develop an Apex program with frontend (Visualforce) to send email and handle invalid email IDs.
+---
+
+### **5. Cloud Monitoring**
+> **Note:** While not listed as a separate numbered  in your document, it is **highly recommended** for the MERN ap ( 9, 10, 11, 13, 14, 15) to ensure API uptime and database connectivity health.
+
+---
+
+### **6. Salesforce Apex / LWC Management Systems**
+* ** 16:** **Student Records:** Apex and Visualforce page for managing custom objects (Name, Roll No, etc.).
+* ** 17:** **Employee Management:** Console-based Apex system for employee records.
+* ** 18:** **Bank Account System:** Console-based Apex system for customer/bank records.
+* ** 19:** **Product Inventory:** Apex and Visualforce page for inventory (Serial No, Expiry, etc.).
+* ** 20:** **Employee Management (LWC):** Lightning Web Component with strict validations (Salary range, Email format, Unique ID).
+* ** 23:** **College Management (Lightning App):** Validating Student and Faculty records (Marks, Salary, Joining Date).
+
+---
+
+### **7. Salesforce Services**
+* ** 21:** **Email Notification Service:** Console-based Apex program using built-in messaging class (with/without attachments).
+* ** 22:** **Email Service with Frontend:** Apex program with Visualforce frontend to handle invalid email ID messaging.
