@@ -1,111 +1,80 @@
 #!/bin/bash
 
-# --- Proper MERN Assignment: VM Provisioning Script (Event App) ---
+# --- Event Registration: Simple Unity VM Provisioning ---
 
-echo "Starting Full MERN Stack Setup for VM..."
+echo "Starting Event App Unity Setup for VM..."
 
 # 1. Wait for background APT tasks
 wait_for_apt() {
     while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
-        echo "Waiting for VM automated software updates to finish..."
+        echo "Waiting for VM software updates to finish..."
         sleep 2
     done
 }
 wait_for_apt
 
-# 2. System Update & Dependencies
-echo "Updating system..."
+# 2. Dependencies
 sudo apt-get update -y
 sudo apt-get install -y curl gnupg nginx build-essential
 
 # 3. Node.js (v20)
 if ! command -v node &> /dev/null; then
-    echo "Installing Node.js..."
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
 fi
 
 # 4. MongoDB
 if ! command -v mongod &> /dev/null; then
-    echo "Installing MongoDB..."
     curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --batch --yes -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
     echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
     sudo apt-get update -y
     sudo apt-get install -y mongodb-org
+    sudo systemctl enable --now mongod
 fi
 
-# 5. Global Process Manager (PM2)
+# 5. PM2
 if ! command -v pm2 &> /dev/null; then
-    echo "Installing PM2 globally..."
     sudo npm install -g pm2
 fi
 
-# 6. Automated Nginx Configuration for MERN
+# 6. Automated Nginx Configuration (Simple Old-Style Proxy)
 echo "Configuring Nginx Reverse Proxy..."
-PROJECT_DIR=$(pwd)
 NGINX_CONF="/etc/nginx/sites-available/mern_event"
-
 sudo rm -f /etc/nginx/sites-enabled/*
 
 sudo bash -c "cat > $NGINX_CONF" <<EOF
 server {
     listen 80;
     server_name _;
-    
-    # 1. Serve built React frontend directly from disk
-    root $PROJECT_DIR/frontend/dist;
-    index index.html;
-    
-    # Allow client-side routing
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
 
-    # 2. Proxy API requests to Node backend (Port 5004)
-    location /api/ {
+    location / {
         proxy_pass http://127.0.0.1:5004;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF
 
 sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
-
-# 7. Start System Services
-echo "Restarting System Services..."
-sudo systemctl daemon-reload
 sudo systemctl restart nginx
-sudo systemctl enable mongod
-sudo systemctl restart mongod
 
-# 8. Project Dependency Installation & Build
-echo "Installing backend dependencies..."
+# 7. Project Build & Start
+PROJECT_DIR=$(pwd)
+echo "Installing & Building..."
+
+cd $PROJECT_DIR/backend && npm install
+cd $PROJECT_DIR/frontend && npm install && npm run build
+
+# Register with PM2 (Unity Mode: Backend serves UI)
+pm2 delete event-api 2>/dev/null
 cd $PROJECT_DIR/backend
-npm install
-
-echo "Installing frontend dependencies & building..."
-cd $PROJECT_DIR/frontend
-npm install
-npm run build
-
-# 9. Start AURA-standard suite
-echo "Starting Event Registration Services..."
-cd $PROJECT_DIR
-pm2 start backend/server.js --name "event-api"
+pm2 start server.js --name "event-api"
 pm2 save
 
 echo "----------------------------------------------------"
 echo "✅ SETUP COMPLETE! EVENT APP IS LIVE."
 echo "----------------------------------------------------"
-echo "🌎 Frontend: Serve by Nginx on Port 80"
-echo "⚙️  Backend: Managed by PM2 (event-api)"
-echo ""
-echo "Manage your stack with these commands:"
-echo " - View status: pm2 status"
-echo " - View logs:   pm2 logs event-api"
-echo " - Restart all: pm2 restart all"
-echo " - DB Access:   mongosh event_db"
+echo "🌎 IP Address: Access your VM's public IP"
+echo "⚙️  Architecture: Unity (Backend serves UI)"
 echo "----------------------------------------------------"

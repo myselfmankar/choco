@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const Post = require("./Post");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -68,5 +69,13 @@ app.delete("/api/posts/:id", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+// Unity Architecture: Serve Frontend
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+});
+
+const PORT = process.env.PORT || 5003;
+app.listen(PORT, () => console.log(`Blog Server started on port ${PORT}`));

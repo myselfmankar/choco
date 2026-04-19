@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const Student = require("./Student");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -66,6 +67,14 @@ app.delete("/api/students/:id", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+
+// Unity Architecture: Serve Frontend
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
 const PORT = process.env.PORT || 5001;

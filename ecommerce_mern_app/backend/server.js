@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const Product = require("./Product");
 const CartItem = require("./CartItem");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -125,6 +126,14 @@ app.delete("/api/cart", async (req, res) => {
   }
 });
 
+
+
+// Unity Architecture: Serve Frontend
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+});
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Ecommerce Server started on port ${PORT}`));
