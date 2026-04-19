@@ -1,4 +1,4 @@
-# 🚀 AURA Cloud Storage: Deployment Guide
+#  AURA Cloud Storage: Deployment Guide
 
 Follow these steps to deploy your modernized MERN stack on a Cloud VM (Azure, AWS, GCP).
 

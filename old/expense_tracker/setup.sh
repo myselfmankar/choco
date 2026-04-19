@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Xpense Hub - Setup Script
-echo "🚀 Initializing Xpense Hub SaaS..."
+echo " Initializing Xpense Hub SaaS..."
 
 # Check if MongoDB is running
 if ! command -v mongod &> /dev/null

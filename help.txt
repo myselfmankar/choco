@@ -1,7 +1,7 @@
 ### 🐧 LP-II Cloud Deployment: Essential Linux Help
 ---
 
-#### 🚀 Environment Setup (First Time)
+####  Environment Setup (First Time)
 - **Update System**: `sudo apt update`
 - **Install Python 3 & Pip**: `sudo apt install -y python3 python3-pip`
 - **Install Node.js & NPM**: `sudo apt install -y nodejs npm`

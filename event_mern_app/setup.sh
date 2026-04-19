@@ -32,12 +32,7 @@ if ! command -v mongod &> /dev/null; then
     sudo systemctl enable --now mongod
 fi
 
-# 5. PM2
-if ! command -v pm2 &> /dev/null; then
-    sudo npm install -g pm2
-fi
-
-# 6. Automated Nginx Configuration (Simple Old-Style Proxy)
+# 5. Automated Nginx Configuration (Simple Old-Style Proxy)
 echo "Configuring Nginx Reverse Proxy..."
 NGINX_CONF="/etc/nginx/sites-available/mern_event"
 sudo rm -f /etc/nginx/sites-enabled/*
@@ -59,22 +54,18 @@ EOF
 sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
-# 7. Project Build & Start
+# 6. Project Build
 PROJECT_DIR=$(pwd)
 echo "Installing & Building..."
 
 cd $PROJECT_DIR/backend && npm install
 cd $PROJECT_DIR/frontend && npm install && npm run build
 
-# Register with PM2 (Unity Mode: Backend serves UI)
-pm2 delete event-api 2>/dev/null
-cd $PROJECT_DIR/backend
-pm2 start server.js --name "event-api"
-pm2 save
+# Make run.sh executable
+chmod +x $PROJECT_DIR/run.sh
 
 echo "----------------------------------------------------"
-echo "✅ SETUP COMPLETE! EVENT APP IS LIVE."
+echo "✅ SETUP COMPLETE! EVENT APP IS READY."
 echo "----------------------------------------------------"
-echo "🌎 IP Address: Access your VM's public IP"
-echo "⚙️  Architecture: Unity (Backend serves UI)"
+echo "👉 Run './run.sh' to start the application."
 echo "----------------------------------------------------"
