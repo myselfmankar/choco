@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const Product = require("./Product");
 const CartItem = require("./CartItem");
+const Order = require("./Order");
 const path = require("path");
 
 const app = express();
@@ -14,49 +15,53 @@ app.use(express.json());
 mongoose.connect("mongodb://localhost:27017/ecommerce_db")
   .then(async () => {
     console.log("MongoDB Connected to ecommerce_db");
-    // Reset and Seed test products
-    await Product.deleteMany({});
-    await CartItem.deleteMany({});
-
-    await Product.insertMany([
-      {
-        name: "Aura Smart Watch",
-        price: 2950,
-        category: "Timepieces",
-        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop"
-      },
-      {
-        name: "Midnight Onyx Ring",
-        price: 1450,
-        category: "Fine Jewelry",
-        image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&h=800&fit=crop"
-      },
-      {
-        name: "Sartorial Silk Scarf",
-        price: 420,
-        category: "Accessories",
-        image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop"
-      },
-      {
-        name: "Leather Aviator Bag",
-        price: 1850,
-        category: "Travel",
-        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=800&fit=crop"
-      },
-      {
-        name: "Cashmere Overcoat",
-        price: 3200,
-        category: "Apparel",
-        image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=800&fit=crop"
-      },
-      {
-        name: "Crystal Decanter Set",
-        price: 850,
-        category: "Home",
-        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop"
-      }
-    ]);
-    console.log("Seeded database with scaled nexus products.");
+    
+    // Check if seeding is needed
+    const count = await Product.countDocuments();
+    if (count === 0) {
+      console.log("Database empty. Seeding products...");
+      await Product.insertMany([
+        {
+          name: "Aura Smart Watch",
+          price: 2950,
+          category: "Timepieces",
+          image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop"
+        },
+        {
+          name: "Midnight Onyx Ring",
+          price: 1450,
+          category: "Fine Jewelry",
+          image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&h=800&fit=crop"
+        },
+        {
+          name: "Sartorial Silk Scarf",
+          price: 420,
+          category: "Accessories",
+          image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop"
+        },
+        {
+          name: "Leather Aviator Bag",
+          price: 1850,
+          category: "Travel",
+          image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=800&fit=crop"
+        },
+        {
+          name: "Cashmere Overcoat",
+          price: 3200,
+          category: "Apparel",
+          image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=800&fit=crop"
+        },
+        {
+          name: "Crystal Decanter Set",
+          price: 850,
+          category: "Home",
+          image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop"
+        }
+      ]);
+      console.log("Seeded database with scaled nexus products.");
+    } else {
+      console.log("Database already has data. Skipping seeding.");
+    }
   })
   .catch((err) => console.log(err));
 
@@ -116,11 +121,47 @@ app.patch("/api/cart/:id", async (req, res) => {
   }
 });
 
-// Clear Cart (Checkout)
+// Confirm Order (Checkout)
+app.post("/api/checkout", async (req, res) => {
+  try {
+    const cartItems = await CartItem.find();
+    if (cartItems.length === 0) return res.status(400).json({ message: "Cart is empty" });
+
+    const totalAmount = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    
+    const order = new Order({
+      items: cartItems.map(item => ({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
+      totalAmount
+    });
+
+    await order.save();
+    await CartItem.deleteMany({}); // Clear cart after order is confirmed
+    res.status(201).json({ message: "Order confirmed", orderId: order._id });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Clear Cart (Manual)
 app.delete("/api/cart", async (req, res) => {
   try {
     await CartItem.deleteMany({});
     res.json({ message: "Cart cleared" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get Orders (To verify storage)
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ orderedAt: -1 });
+    res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

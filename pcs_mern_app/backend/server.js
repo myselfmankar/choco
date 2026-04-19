@@ -23,7 +23,7 @@ const FileSchema = new mongoose.Schema({
   mimeType: String,
   uploadedAt: { type: Date, default: Date.now }
 });
-const File = mongoose.model("File", FileSchema);
+const File = mongoose.model("File", FileSchema, "files");
 
 // Multer Storage Config
 const uploadDir = path.join(__dirname, "uploads");

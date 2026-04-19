@@ -9,4 +9,4 @@ const RegistrationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Registration", RegistrationSchema);
+module.exports = mongoose.model("Registration", RegistrationSchema, "registrations");

@@ -8,4 +8,4 @@ const StudentSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Student", StudentSchema);
+module.exports = mongoose.model("Student", StudentSchema, "students");
