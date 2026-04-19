@@ -1,13 +1,4 @@
 #!/bin/bash
-
-# --- Ecommerce Store: Simple Start Script ---
-
-echo " Starting ECOMMERCE STORE in Unity Mode..."
-
-echo "Both Frontend and Backend are running now."
-echo "Press Ctrl+C to stop the services."
-
-
-# Change to backend directory and start
-cd backend
-npm start
+# Kill any process on port 5002
+sudo fuser -k 5002/tcp 2>/dev/null
+cd backend && npm start

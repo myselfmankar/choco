@@ -1,13 +1,4 @@
 #!/bin/bash
-
-# --- Event Registration: Simple Start Script ---
-
-echo " Starting EVENT REGISTRATION in Unity Mode..."
-
-echo "Both Frontend and Backend are running now."
-echo "Press Ctrl+C to stop the services."
-
-
-# Change to backend directory and start
-cd backend
-npm start
+# Kill any process on port 5004
+sudo fuser -k 5004/tcp 2>/dev/null
+cd backend && npm start

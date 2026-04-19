@@ -1,23 +1,16 @@
 #!/bin/bash
 
-# --- Student Management: Simple Unity VM Provisioning ---
+# Setup script for VM
+echo "Installing dependencies..."
 
-echo "Starting Student App Unity Setup for VM..."
+# 1. Wait for APT
+while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 2; done
 
-# 1. Wait for background APT tasks
-wait_for_apt() {
-    while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
-        echo "Waiting for VM software updates to finish..."
-        sleep 2
-    done
-}
-wait_for_apt
-
-# 2. Dependencies
+# 2. Base packages
 sudo apt-get update -y
 sudo apt-get install -y curl gnupg nginx build-essential
 
-# 3. Node.js (v20)
+# 3. Node.js
 if ! command -v node &> /dev/null; then
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
@@ -32,40 +25,27 @@ if ! command -v mongod &> /dev/null; then
     sudo systemctl enable --now mongod
 fi
 
-# 5. Automated Nginx Configuration (Simple Old-Style Proxy)
-echo "Configuring Nginx Reverse Proxy..."
-NGINX_CONF="/etc/nginx/sites-available/mern_student"
+# 5. Nginx Config
+NGINX_CONF="/etc/nginx/sites-available/mern"
 sudo rm -f /etc/nginx/sites-enabled/*
-
 sudo bash -c "cat > $NGINX_CONF" <<EOF
 server {
     listen 80;
     server_name _;
-
     location / {
         proxy_pass http://127.0.0.1:5001;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 }
 EOF
-
 sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
-# 6. Project Build
-PROJECT_DIR=$(pwd)
-echo "Installing & Building..."
+# 6. Build
+npm install --prefix backend
+npm install --prefix frontend
+npm run build --prefix frontend
 
-cd $PROJECT_DIR/backend && npm install
-cd $PROJECT_DIR/frontend && npm install && npm run build
-
-# Make run.sh executable
-chmod +x $PROJECT_DIR/run.sh
-
-echo "----------------------------------------------------"
-echo "✅ SETUP COMPLETE! STUDENT PORTAL IS READY."
-echo "----------------------------------------------------"
-echo "👉 Run './run.sh' to start the application."
-echo "----------------------------------------------------"
+echo "Setup done. To run the app:"
+echo "cd backend && npm start"

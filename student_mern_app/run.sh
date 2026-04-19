@@ -1,13 +1,4 @@
 #!/bin/bash
-
-# --- Student Portal: Simple Start Script ---
-
-echo "🚀 Starting STUDENT PORTAL in Unity Mode..."
-
-echo "Both Frontend and Backend are running now."
-echo "Press Ctrl+C to stop the services."
-
-
-# Change to backend directory and start
-cd backend
-npm start
+# Kill any process on port 5001
+sudo fuser -k 5001/tcp 2>/dev/null
+cd backend && npm start
