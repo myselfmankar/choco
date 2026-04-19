@@ -18,12 +18,42 @@ mongoose.connect("mongodb://localhost:27017/ecommerce_db")
     await CartItem.deleteMany({});
 
     await Product.insertMany([
-      { name: "The Aurelia Watch", price: 29500, category: "Timepieces", image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=800&auto=format&fit=crop" },
-      { name: "Midnight Onyx Ring", price: 14500, category: "Fine Jewelry", image: "https://images.unsplash.com/photo-1588444833098-420556502da5?q=80&w=800&auto=format&fit=crop" },
-      { name: "Sartorial Silk Scarf", price: 4200, category: "Accessories", image: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?q=80&w=800&auto=format&fit=crop" },
-      { name: "Leather Aviator Bag", price: 18500, category: "Travel", image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=800&auto=format&fit=crop" },
-      { name: "Cashmere Overcoat", price: 32000, category: "Apparel", image: "https://images.unsplash.com/photo-1544923246-77307dd654ca?q=80&w=800&auto=format&fit=crop" },
-      { name: "Crystal Decanter Set", price: 8500, category: "Home", image: "https://images.unsplash.com/photo-1585533611414-26372671077f?q=80&w=800&auto=format&fit=crop" }
+      {
+        name: "The Aurelia Watch",
+        price: 29500,
+        category: "Timepieces",
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop"
+      },
+      {
+        name: "Midnight Onyx Ring",
+        price: 14500,
+        category: "Fine Jewelry",
+        image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&h=800&fit=crop"
+      },
+      {
+        name: "Sartorial Silk Scarf",
+        price: 4200,
+        category: "Accessories",
+        image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop"
+      },
+      {
+        name: "Leather Aviator Bag",
+        price: 18500,
+        category: "Travel",
+        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=800&fit=crop"
+      },
+      {
+        name: "Cashmere Overcoat",
+        price: 32000,
+        category: "Apparel",
+        image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=800&fit=crop"
+      },
+      {
+        name: "Crystal Decanter Set",
+        price: 8500,
+        category: "Home",
+        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop"
+      }
     ]);
     console.log("Seeded database with updated NEXUS products.");
   })
