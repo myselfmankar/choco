@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './index.css';
 
 // We'll use absolute URLs during dev unless proxy is set
-const API_URL = 'http://localhost:5000/api/posts';
+const API_URL = '/api/posts';
 
 function App() {
   const [posts, setPosts] = useState([]);

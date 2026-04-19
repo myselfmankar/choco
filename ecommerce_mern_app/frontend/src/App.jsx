@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './index.css';
 
-const API_URL = 'http://localhost:5002/api';
+const API_URL = '/api';
 const fmt = n => '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 function App() {

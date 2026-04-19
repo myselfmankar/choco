@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import './index.css';
 
-const API_BASE = 'http://localhost:5005/api';
+const API_BASE = '/api';
 
 function App() {
   const [files, setFiles] = useState([]);
