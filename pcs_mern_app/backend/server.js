@@ -106,7 +106,7 @@ app.use(express.static(path.join(__dirname, "../frontend/dist")));
 // (Existing /api routes are above)
 
 // The Catch-all: If it's not an API call, serve index.html
-app.get("*", (req, res) => {
+app.get("(.*)", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
