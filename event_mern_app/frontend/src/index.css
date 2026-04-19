@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+  --bg-dark: #0f172a;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --accent-orange: #fb923c;
+  --accent-neon: #4ade80;
+  --text-white: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-white);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(251, 146, 60, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(74, 222, 128, 0.05) 0%, transparent 50%);
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 4px;
+  color: var(--accent-orange);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px rgba(251, 146, 60, 0.3);
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.event-details {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    justify-content: center;
+}
+
+.detail-pill {
+    background: rgba(251, 146, 60, 0.1);
+    border: 1px solid var(--accent-orange);
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-orange);
+    text-transform: uppercase;
+}
+
+/* Glass Card */
+.registration-container {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.glass-card h2::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: var(--accent-orange);
+    border-radius: 2px;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+input, select {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+}
+
+.reg-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent-orange), #f97316);
+    color: var(--bg-dark);
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    margin-top: 1rem;
+}
+
+.reg-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.4);
+}
+
+/* Registrants Table */
+.registrants-card {
+    grid-column: span 2;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th {
+    text-align: left;
+    padding: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+}
+
+td {
+    padding: 16px 12px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.team-badge {
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--accent-neon);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+@media (max-width: 800px) {
+    .registration-container {
+        grid-template-columns: 1fr;
+    }
+    .registrants-card {
+        grid-column: span 1;
+    }
+    .hero h1 {
+        font-size: 2rem;
+    }
+}
