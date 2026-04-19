@@ -30,31 +30,27 @@ scp -i /path/to/your-key.pem -r "d:\insem\LP2\blog_mern_app" ubuntu@<YOUR_VM_PUB
 
 ---
 
-## Deployment Option A: Using the Automated `setup.sh` (The Easy Way)
+## ✅ One-Terminal Deployment (Automated)
 
-Once inside the VM, navigate into your project folder and run the script:
+Run the setup script. It handles Node.js, MongoDB, Nginx, PM2, and your build automatedly.
 
 ```bash
-cd ~/blog_mern_app
-chmod +x setup.sh
-./setup.sh
+cd folder_name
+sudo bash setup.sh
 ```
 
-**What this automated script does:**
-1. Installs Node.js, MongoDB, PM2, and Nginx.
-2. Configures Nginx to serve your React Frontend on port 80 and proxy `/api/*` to your Express Backend.
-3. Installs `npm` dependencies for both folders and builds the React app for production.
+**Your app is now live!** The script automatically registers the backend with PM2 and serves the frontend on Port 80.
 
-**Post-Setup Step:**
-After the script completes, you just need to start the backend running in the background:
-```bash
-cd ~/blog_mern_app/backend
-pm2 start server.js --name "blog-api"
-pm2 save
-```
-**Done!** Browse to `http://<YOUR_VM_PUBLIC_IP>` to see the app.
+## 📊 Management Commands
+Use these from a single terminal:
+- `pm2 status`: Check if services are running.
+- `pm2 logs`: View real-time activity.
+- `mongosh <db_name>`: Access the database.
 
----
+## 🔎 Useful MongoDB Queries
+- List all entries: `db.collection.find().pretty()`
+- Count entries: `db.collection.countDocuments()`
+- Delete all data: `db.collection.deleteMany({})`
 
 ## Deployment Option B: Manual Execution (Without `setup.sh`)
 

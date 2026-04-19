@@ -87,9 +87,24 @@ cd $PROJECT_DIR/frontend
 npm install
 npm run build
 
-echo "Setup Complete! Your AURA VM is ready."
+# 9. Start AURA suite
+echo "Starting AURA Core Services..."
+cd $PROJECT_DIR
+npm install concurrently
+pm2 start backend/server.js --name "aura-api"
+
+# 10. Save PM2 list so it persists on reboot
+pm2 save
+
+echo "----------------------------------------------------"
+echo "✅ SETUP COMPLETE! AURA CLOUD IS LIVE."
+echo "----------------------------------------------------"
+echo "🌎 Frontend: Serve by Nginx on Port 80"
+echo "⚙️  Backend: Managed by PM2 (aura-api)"
 echo ""
-echo "Deployment Instructions:"
-echo "1. Go to backend: cd $PROJECT_DIR/backend"
-echo "2. Start with PM2: pm2 start server.js --name 'aura-api'"
-echo "3. Visit your Public IP!"
+echo "Manage your stack with these commands:"
+echo " - View status: pm2 status"
+echo " - View logs:   pm2 logs aura-api"
+echo " - Restart all: pm2 restart all"
+echo " - DB Access:   mongosh aura_db"
+echo "----------------------------------------------------"

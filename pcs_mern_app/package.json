@@ -1,0 +1,16 @@
+{
+  "name": "aura-cloud-storage",
+  "version": "1.0.0",
+  "description": "Unified runner for AURA Cloud Storage",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start backend/server.js --name aura-api --watch && echo \"AURA API is running. Nginx is serving the frontend.\"",
+    "stop": "pm2 stop aura-api",
+    "logs": "pm2 logs aura-api",
+    "status": "pm2 status",
+    "dev": "npx concurrently \"cd backend && npm start\" \"cd frontend && npm run dev\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -91,9 +91,21 @@ cd $PROJECT_DIR/frontend
 npm install
 npm run build
 
-echo "Setup Complete! Your VM is ready."
+# 9. Start AURA-standard suite
+echo "Starting Event Registration Services..."
+cd $PROJECT_DIR
+pm2 start backend/server.js --name "event-api"
+pm2 save
+
+echo "----------------------------------------------------"
+echo "✅ SETUP COMPLETE! EVENT APP IS LIVE."
+echo "----------------------------------------------------"
+echo "🌎 Frontend: Serve by Nginx on Port 80"
+echo "⚙️  Backend: Managed by PM2 (event-api)"
 echo ""
-echo "Deployment Instructions:"
-echo "1. Go to the backend folder: cd $PROJECT_DIR/backend"
-echo "2. Start it using PM2: pm2 start server.js --name 'event-api'"
-echo "3. Your app is now live on the VM's Public IP address!"
+echo "Manage your stack with these commands:"
+echo " - View status: pm2 status"
+echo " - View logs:   pm2 logs event-api"
+echo " - Restart all: pm2 restart all"
+echo " - DB Access:   mongosh event_db"
+echo "----------------------------------------------------"

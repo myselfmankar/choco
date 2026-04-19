@@ -19,43 +19,43 @@ mongoose.connect("mongodb://localhost:27017/ecommerce_db")
 
     await Product.insertMany([
       {
-        name: "The Aurelia Watch",
-        price: 29500,
+        name: "Aura Smart Watch",
+        price: 2950,
         category: "Timepieces",
         image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=800&fit=crop"
       },
       {
         name: "Midnight Onyx Ring",
-        price: 14500,
+        price: 1450,
         category: "Fine Jewelry",
         image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&h=800&fit=crop"
       },
       {
         name: "Sartorial Silk Scarf",
-        price: 4200,
+        price: 420,
         category: "Accessories",
         image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop"
       },
       {
         name: "Leather Aviator Bag",
-        price: 18500,
+        price: 1850,
         category: "Travel",
         image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=800&fit=crop"
       },
       {
         name: "Cashmere Overcoat",
-        price: 32000,
+        price: 3200,
         category: "Apparel",
         image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&h=800&fit=crop"
       },
       {
         name: "Crystal Decanter Set",
-        price: 8500,
+        price: 850,
         category: "Home",
         image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop"
       }
     ]);
-    console.log("Seeded database with updated NEXUS products.");
+    console.log("Seeded database with scaled nexus products.");
   })
   .catch((err) => console.log(err));
 

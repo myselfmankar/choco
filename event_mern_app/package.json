@@ -1,0 +1,15 @@
+{
+  "name": "event-registration-app",
+  "version": "1.0.0",
+  "description": "Unified runner for PICT Paintball Event Registration",
+  "scripts": {
+    "start": "pm2 start backend/server.js --name event-api --watch",
+    "stop": "pm2 stop event-api",
+    "logs": "pm2 logs event-api",
+    "status": "pm2 status",
+    "dev": "npx concurrently \"cd backend && npm start\" \"cd frontend && npm run dev\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
