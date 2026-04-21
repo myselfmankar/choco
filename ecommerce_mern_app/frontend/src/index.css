@@ -707,3 +707,24 @@ header {
   .item-line-total { margin-left: auto; }
   .order-totals { max-width: 100%; }
 }
+
+.section-header-right {
+  display: flex; align-items: center; gap: 1.2rem;
+}
+.continue-shopping-btn {
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 0.55rem 1.1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+.continue-shopping-btn:hover {
+  background: var(--ink);
+  color: var(--gold-light);
+}

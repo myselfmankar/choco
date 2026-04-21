@@ -101,10 +101,9 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/checkout`, { method: 'POST' });
       if (res.ok) {
-        showToast('Order placed — thank you for your selection');
+        showToast('Order placed — view it anytime from My Orders');
         fetchCart();
         fetchOrders();
-        setActiveView('orders');
       } else {
         const error = await res.json();
         showToast(error.message || 'Checkout failed');
@@ -127,8 +126,14 @@ function App() {
       <header>
         <div className="logo" onClick={() => setActiveView('shop')} style={{ cursor: 'pointer' }}>Nex<span>us</span></div>
         <div className="header-right">
-          <button 
-            className={`nav-link ${activeView === 'orders' ? 'active' : ''}`} 
+          <button
+            className={`nav-link ${activeView === 'shop' ? 'active' : ''}`}
+            onClick={() => setActiveView('shop')}
+          >
+            Shop
+          </button>
+          <button
+            className={`nav-link ${activeView === 'orders' ? 'active' : ''}`}
             onClick={() => setActiveView('orders')}
           >
             My Orders
@@ -184,7 +189,12 @@ function App() {
             <div className="orders-section">
               <div className="section-header">
                 <h2 className="section-label">Order History</h2>
-                <span className="section-count">{orders.length} orders total</span>
+                <div className="section-header-right">
+                  <span className="section-count">{orders.length} orders total</span>
+                  <button className="continue-shopping-btn" onClick={() => setActiveView('shop')}>
+                    ← Continue Shopping
+                  </button>
+                </div>
               </div>
               <div className="orders-list">
                 {orders.length === 0 ? (
