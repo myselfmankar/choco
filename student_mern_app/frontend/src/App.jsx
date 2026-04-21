@@ -27,8 +27,26 @@ function App() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.roll) {
-      alert('Fill Name and Roll No');
+    const name = formData.name.trim();
+    const roll = formData.roll.trim();
+    const email = formData.email.trim();
+    const marks = Number(formData.marks);
+
+    if (!name || !roll || !email || formData.marks === '') {
+      alert('Please fill all fields');
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    // Marks validation
+    if (marks < 0 || marks > 100) {
+      alert('Marks must be between 0 and 100');
       return;
     }
 
@@ -115,6 +133,8 @@ function App() {
             type="number"
             name="marks"
             placeholder="100"
+            min="0"
+            max="100"
             value={formData.marks}
             onChange={handleChange}
           />

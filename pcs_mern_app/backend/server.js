@@ -19,7 +19,7 @@ mongoose.connect("mongodb://localhost:27017/pcs_db")
 const FileSchema = new mongoose.Schema({
   filename: String,
   originalName: String,
-  size: Number,
+  size: { type: Number, min: 0 },
   mimeType: String,
   uploadedAt: { type: Date, default: Date.now }
 });
