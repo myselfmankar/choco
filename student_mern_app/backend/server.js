@@ -16,30 +16,56 @@ mongoose.connect("mongodb://localhost:27017/student_db")
 
 // Routes
 
+// Helper: turn mongoose/Mongo errors into clean, user-facing messages
+const formatError = (err) => {
+  // Duplicate key (unique index) – e.g. duplicate roll number
+  if (err && err.code === 11000) {
+    const field = Object.keys(err.keyValue || {})[0] || "field";
+    const value = err.keyValue ? err.keyValue[field] : "";
+    const pretty = field === "roll" ? "Roll number" : field.charAt(0).toUpperCase() + field.slice(1);
+    return { status: 409, body: { message: `${pretty} "${value}" already exists. Please use a different ${field}.`, field } };
+  }
+  // Mongoose validation – return first (or all) field messages
+  if (err && err.name === "ValidationError") {
+    const errors = {};
+    for (const key of Object.keys(err.errors)) {
+      errors[key] = err.errors[key].message;
+    }
+    const first = Object.values(errors)[0] || "Validation failed";
+    return { status: 400, body: { message: first, errors } };
+  }
+  // CastError – bad ObjectId
+  if (err && err.name === "CastError") {
+    return { status: 400, body: { message: "Invalid ID format" } };
+  }
+  return { status: 500, body: { message: err.message || "Server error" } };
+};
+
 // Get all students
 app.get("/api/students", async (req, res) => {
   try {
     const students = await Student.find().sort({ createdAt: -1 });
     res.json(students);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    const { status, body } = formatError(err);
+    res.status(status).json(body);
   }
 });
 
 // Add a student
 app.post("/api/students", async (req, res) => {
-  const student = new Student({
-    name: req.body.name,
-    roll: req.body.roll,
-    email: req.body.email,
-    marks: req.body.marks,
-  });
-
   try {
+    const name = (req.body.name || "").trim();
+    const roll = (req.body.roll || "").trim();
+    const email = (req.body.email || "").trim().toLowerCase();
+    const marks = req.body.marks;
+
+    const student = new Student({ name, roll, email, marks });
     const newStudent = await student.save();
     res.status(201).json(newStudent);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    const { status, body } = formatError(err);
+    res.status(status).json(body);
   }
 });
 
@@ -47,25 +73,32 @@ app.post("/api/students", async (req, res) => {
 app.patch("/api/students/:id", async (req, res) => {
   try {
     const student = await Student.findById(req.params.id);
-    if (req.body.name) student.name = req.body.name;
-    if (req.body.roll) student.roll = req.body.roll;
-    if (req.body.email) student.email = req.body.email;
-    if (req.body.marks !== undefined) student.marks = req.body.marks;
-    
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    if (req.body.name !== undefined) student.name = String(req.body.name).trim();
+    if (req.body.roll !== undefined) student.roll = String(req.body.roll).trim();
+    if (req.body.email !== undefined) student.email = String(req.body.email).trim().toLowerCase();
+    if (req.body.marks !== undefined && req.body.marks !== "") student.marks = req.body.marks;
+
     const updatedStudent = await student.save();
     res.json(updatedStudent);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    const { status, body } = formatError(err);
+    res.status(status).json(body);
   }
 });
 
 // Delete a student
 app.delete("/api/students/:id", async (req, res) => {
   try {
-    await Student.findByIdAndDelete(req.params.id);
+    const deleted = await Student.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Student not found" });
     res.json({ message: "Student deleted" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    const { status, body } = formatError(err);
+    res.status(status).json(body);
   }
 });
 
