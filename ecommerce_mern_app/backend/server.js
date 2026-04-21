@@ -127,15 +127,20 @@ app.post("/api/checkout", async (req, res) => {
     const cartItems = await CartItem.find();
     if (cartItems.length === 0) return res.status(400).json({ message: "Cart is empty" });
 
-    const totalAmount = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    
+    const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const shipping = subtotal > 50000 ? 0 : (subtotal > 0 ? 199 : 0);
+    const totalAmount = subtotal + shipping;
+
     const order = new Order({
       items: cartItems.map(item => ({
         productId: item.productId,
         name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        image: item.image
       })),
+      subtotal,
+      shipping,
       totalAmount
     });
 

@@ -7,12 +7,15 @@ const fmt = n => '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 0, m
 function App() {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [activeView, setActiveView] = useState('shop'); // 'shop' or 'orders'
   const [toastMsg, setToastMsg] = useState('');
   const [localQtys, setLocalQtys] = useState({});
 
   useEffect(() => {
     fetchProducts();
     fetchCart();
+    fetchOrders();
   }, []);
 
   const fetchProducts = async () => {
@@ -33,6 +36,16 @@ function App() {
       const res = await fetch(`${API_URL}/cart`);
       const data = await res.json();
       setCartItems(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(`${API_URL}/orders`);
+      const data = await res.json();
+      setOrders(data);
     } catch (err) {
       console.error(err);
     }
@@ -86,9 +99,16 @@ function App() {
       return;
     }
     try {
-      await fetch(`${API_URL}/cart`, { method: 'DELETE' });
-      showToast('Order placed — thank you for your selection');
-      fetchCart();
+      const res = await fetch(`${API_URL}/checkout`, { method: 'POST' });
+      if (res.ok) {
+        showToast('Order placed — thank you for your selection');
+        fetchCart();
+        fetchOrders();
+        setActiveView('orders');
+      } else {
+        const error = await res.json();
+        showToast(error.message || 'Checkout failed');
+      }
     } catch (err) {
       console.error(err);
     }
@@ -105,8 +125,14 @@ function App() {
   return (
     <>
       <header>
-        <div className="logo">Nex<span>us</span></div>
+        <div className="logo" onClick={() => setActiveView('shop')} style={{ cursor: 'pointer' }}>Nex<span>us</span></div>
         <div className="header-right">
+          <button 
+            className={`nav-link ${activeView === 'orders' ? 'active' : ''}`} 
+            onClick={() => setActiveView('orders')}
+          >
+            My Orders
+          </button>
           <button className="cart-trigger" onClick={scrollToCart}>
             <span>Cart</span>
             <span className="cart-badge">{totalCartItems}</span>
@@ -120,37 +146,117 @@ function App() {
       </div>
 
       <div className="layout">
-        {/* Products */}
-        <div className="products-section">
-          <div className="section-header">
-            <h2 className="section-label">Featured Collection</h2>
-            <span className="section-count">{products.length} items</span>
-          </div>
-          <div className="product-grid">
-            {products.map(p => (
-              <div className="product-card" key={p._id}>
-                <div className="img-wrap">
-                  <img src={p.image} alt={p.name} loading="lazy" />
-                  <span className="category-tag">{p.category || 'Curated'}</span>
-                </div>
-                <div className="card-body">
-                  <div className="product-name">{p.name}</div>
-                  <div className="product-price">{fmt(p.price)}</div>
-                </div>
-                <div className="card-footer">
-                  <div className="qty-row">
-                    <span className="qty-label">Qty</span>
-                    <div className="qty-controls">
-                      <button className="qty-btn" onClick={() => updateLocalQty(p._id, -1)}>−</button>
-                      <span className="qty-val">{localQtys[p._id] || 1}</span>
-                      <button className="qty-btn" onClick={() => updateLocalQty(p._id, 1)}>+</button>
+        {/* Main Content */}
+        <div className="main-content">
+          {activeView === 'shop' ? (
+            <div className="products-section">
+              <div className="section-header">
+                <h2 className="section-label">Featured Collection</h2>
+                <span className="section-count">{products.length} items</span>
+              </div>
+              <div className="product-grid">
+                {products.map(p => (
+                  <div className="product-card" key={p._id}>
+                    <div className="img-wrap">
+                      <img src={p.image} alt={p.name} loading="lazy" />
+                      <span className="category-tag">{p.category || 'Curated'}</span>
+                    </div>
+                    <div className="card-body">
+                      <div className="product-name">{p.name}</div>
+                      <div className="product-price">{fmt(p.price)}</div>
+                    </div>
+                    <div className="card-footer">
+                      <div className="qty-row">
+                        <span className="qty-label">Qty</span>
+                        <div className="qty-controls">
+                          <button className="qty-btn" onClick={() => updateLocalQty(p._id, -1)}>−</button>
+                          <span className="qty-val">{localQtys[p._id] || 1}</span>
+                          <button className="qty-btn" onClick={() => updateLocalQty(p._id, 1)}>+</button>
+                        </div>
+                      </div>
+                      <button className="add-btn" onClick={() => addToCart(p)}>Add to Selection</button>
                     </div>
                   </div>
-                  <button className="add-btn" onClick={() => addToCart(p)}>Add to Selection</button>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="orders-section">
+              <div className="section-header">
+                <h2 className="section-label">Order History</h2>
+                <span className="section-count">{orders.length} orders total</span>
+              </div>
+              <div className="orders-list">
+                {orders.length === 0 ? (
+                  <div className="orders-empty">
+                    <p>No past orders found.</p>
+                    <button className="shop-now-btn" onClick={() => setActiveView('shop')}>Shop our Collection</button>
+                  </div>
+                ) : (
+                  orders.map(order => {
+                    const itemCount = order.items.reduce((a, i) => a + i.quantity, 0);
+                    const orderDate = new Date(order.orderedAt);
+                    return (
+                      <div className="order-card" key={order._id}>
+                        <div className="order-card-header">
+                          <div className="order-header-left">
+                            <div className="order-id">Order #<span>{order._id.slice(-8).toUpperCase()}</span></div>
+                            <div className="order-date">
+                              Placed on {orderDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+                              {' · '}
+                              {itemCount} item{itemCount > 1 ? 's' : ''}
+                            </div>
+                          </div>
+                          <div className={`order-status status-${(order.status || 'Confirmed').toLowerCase()}`}>
+                            ● {order.status || 'Confirmed'}
+                          </div>
+                        </div>
+                        <div className="order-items">
+                          {order.items.map((item, idx) => (
+                            <div className="order-item-row" key={idx}>
+                              <div className="order-item-img-wrap">
+                                {item.image
+                                  ? <img className="order-item-img" src={item.image} alt={item.name} />
+                                  : <div className="order-item-img placeholder">◻</div>}
+                              </div>
+                              <div className="order-item-details">
+                                <div className="item-name">{item.name}</div>
+                                <div className="item-sub">
+                                  <span className="item-unit-price">{fmt(item.price)}</span>
+                                  <span className="item-qty">Qty: {item.quantity}</span>
+                                </div>
+                              </div>
+                              <div className="item-line-total">{fmt(item.price * item.quantity)}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="order-card-footer">
+                          <div className="order-totals">
+                            {order.subtotal != null && (
+                              <div className="order-total-row">
+                                <span>Subtotal</span>
+                                <span>{fmt(order.subtotal)}</span>
+                              </div>
+                            )}
+                            {order.shipping != null && (
+                              <div className="order-total-row">
+                                <span>Shipping</span>
+                                <span>{order.shipping === 0 ? 'Free' : fmt(order.shipping)}</span>
+                              </div>
+                            )}
+                            <div className="order-total-row grand">
+                              <span>Grand Total</span>
+                              <span className="order-total-val">{fmt(order.totalAmount)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Cart */}

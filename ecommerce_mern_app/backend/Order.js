@@ -7,9 +7,13 @@ const OrderSchema = new mongoose.Schema({
       name: String,
       price: Number,
       quantity: Number,
+      image: String,
     },
   ],
+  subtotal: { type: Number },
+  shipping: { type: Number, default: 0 },
   totalAmount: { type: Number, required: true },
+  status: { type: String, default: "Confirmed" },
   orderedAt: { type: Date, default: Date.now },
 });
 
