@@ -1,0 +1,175 @@
+🔷 2. Custom Objects Created
+✅ 2.1 Student Object
+Label: Student
+Object Name: Student
+Record Name: Student Name (Text)
+
+🔹 Fields in Student Object
+Field Label	        API Name	        Data Type
+Student Name    (default)	Name	    Text
+Student Name	Student_Name__c	        Text(50)
+Roll Number	    Roll_Number__c	        Number(10,0)
+Email	        Email__c__c	            Email
+Department	    Department__c	        Picklist
+Marks	        Marks__c	            Number(3,0)
+
+🔹 Department Picklist Values
+Computer
+IT
+Mechanical
+Civil
+Electronics
+
+
+✅ 2.2 Faculty Object
+Label: Faculty
+Object Name: Faculty
+Record Name: Faculty Name (Text)
+
+🔹 Fields in Faculty Object
+Field Label	    API Name	        Data Type
+Faculty Name (default)	Name	    Text
+Faculty Name	Faculty_Name__c	    Text(50)
+Faculty ID	    Faculty_ID__c	    Number(5,0)
+Email	Email__c	Email
+Salary	Salary__c	Number(10,0)
+Department	Department__c	Picklist
+Joining Date	Joining_Date__c	Date
+
+
+🔷 3. Validation Rules
+✅ 3.1 Student Validation Rules
+🔹 1. Roll Number Validation
+Rule Name: Roll_Number_Validation
+Description: Roll number must be greater than 0
+
+Formula:
+
+Roll_Number__c <= 0
+
+Error Message:
+Roll Number must be greater than 0
+
+🔹 2. Email Validation
+Rule Name: Email_Format_Validation
+Description: Email must contain @ symbol
+
+Formula:
+
+NOT(CONTAINS(Email__c__c, "@"))
+
+Error Message:
+Email must contain @ symbol
+
+🔹 3. Student Name Validation
+Rule Name: Student_Name_Validation
+Description: Student name cannot be empty
+
+Formula:
+
+ISBLANK(Student_Name__c)
+
+Error Message:
+Student Name cannot be empty
+
+🔹 4. Marks Validation
+Rule Name: Marks_Validation
+Description: Marks must be between 0 and 100
+
+Formula:
+
+OR(Marks__c < 0, Marks__c > 100)
+
+Error Message:
+Marks must be between 0 and 100
+
+🔹 5. Department Validation
+Rule Name: Department_Validation
+Description: Department must be selected
+
+Formula:
+
+ISBLANK(TEXT(Department__c))
+
+Error Message:
+Department must be selected
+
+✅ 3.2 Faculty Validation Rules
+🔹 1. Faculty Name Validation
+Rule Name: Faculty_Name_Validation
+Description: Faculty name must have at least 3 characters
+
+Formula:
+
+LEN(Faculty_Name__c) < 3
+
+Error Message:
+Faculty Name must contain at least 3 characters
+
+🔹 2. Faculty ID Validation
+Rule Name: Faculty_ID_Validation
+Description: Faculty ID must be greater than 0
+
+Formula:
+
+Faculty_ID__c <= 0
+
+Error Message:
+Faculty ID must be greater than 0
+
+🔹 3. Salary Validation
+Rule Name: Salary_Validation
+Description: Salary must be within valid range
+
+Formula:
+
+OR(Salary__c <= 10000, Salary__c >= 500000)
+
+Error Message:
+Salary must be between 10,000 and 500,000
+
+🔹 4. Joining Date Validation
+Rule Name: Joining_Date_Validation
+Description: Joining date cannot be future date
+
+Formula:
+
+Joining_Date__c > TODAY()
+
+Error Message:
+Joining date cannot be a future date
+
+
+🔷 4. Unique Constraint
+Field: Faculty_ID__c
+Property Enabled:
+✅ Unique
+✅ Required
+
+🔷 5. Tabs Creation
+
+Tabs were created to make objects visible in the application.
+
+Student Tab
+Faculty Tab
+
+Steps:
+
+Setup → Tabs → New → Select Object → Save
+
+6. Lightning App Creation
+App Name: College Management App
+Navigation Items Added:
+Student
+Faculty
+
+Steps:
+
+Setup → App Manager → New Lightning App
+App Name: College Management App
+Add objects → Assign profile → Save
+
+🔹 STEP 3: Open App
+
+👉 Click App Launcher (9 dots)
+👉 Open College Management App

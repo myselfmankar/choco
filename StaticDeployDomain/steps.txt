@@ -1,0 +1,170 @@
+✅ CC Practical: Static Website with Domain and Public Access (Azure VM)
+🎯 Objective
+
+Deploy a static website on a cloud VM and make it accessible using:
+
+Public IP address
+Domain name
+🔷 PART 1: Create Virtual Machine (VM)
+Step 1: Login to Azure
+Go to: https://portal.azure.com
+Sign in with your account
+Step 2: Create VM
+Search → Virtual Machines
+Click → Create → Azure Virtual Machine
+Step 3: Enter Basic Details
+Setting	Value
+Resource Group	StaticWeb-RG
+VM Name	static-web-vm
+Region	Central India
+Image	Ubuntu Server 22.04
+Size	Standard_B2ats_v2
+Username	azureuser
+Password	(set your password)
+Step 4: Configure Inbound Ports
+
+Allow:
+
+✅ SSH (22)
+✅ HTTP (80)
+Step 5: Create VM
+Click Review + Create → Create
+Wait for deployment
+Step 6: Get Public IP
+Go to VM → Overview
+Copy Public IP Address
+🔷 PART 2: Connect to VM
+For Windows / Linux:
+ssh azureuser@<public-ip>
+
+👉 Example:
+
+ssh azureuser@4.xxx.xxx.xxx
+🔷 PART 3: Install Web Server (Apache)
+Step 1: Update system
+sudo apt update
+Step 2: Install Apache
+sudo apt install apache2 -y
+Step 3: Start Apache
+sudo systemctl start apache2
+Step 4: Enable Apache on Boot
+sudo systemctl enable apache2
+Step 5: Check Status
+sudo systemctl status apache2
+🔷 PART 4: Deploy Static Website
+Step 1: Go to web directory
+cd /var/www/html
+Step 2: Remove default file
+sudo rm index.html
+Step 3: Create website file
+sudo nano index.html
+Step 4: Add HTML Code
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Azure Website</title>
+</head>
+<body>
+    <h1>Welcome to My Cloud Website 🚀</h1>
+    <p>Static website deployed on Azure VM</p>
+</body>
+</html>
+
+Save:
+CTRL + X → Y → ENTER
+
+Step 5: Set Permissions
+sudo chmod -R 755 /var/www/html
+🔷 PART 5: Configure Networking
+Step 1: Go to Azure Portal
+Open your VM
+Click Networking
+Step 2: Verify Rules
+
+Ensure:
+
+Port	Purpose	Status
+22	SSH	Allow
+80	HTTP	Allow
+🔷 PART 6: Access Website via Public IP
+
+Open browser:
+
+http://<public-ip>
+
+👉 Example:
+
+http://4.xxx.xxx.xxx
+
+✅ Website should be visible
+
+🔷 PART 7: Configure Domain Name (IMPORTANT)
+Step 1: Get a Domain
+Use providers like:
+GoDaddy
+Namecheap
+Freenom (free)
+Step 2: Go to DNS Settings
+Step 3: Add A Record
+Type	Name	Value
+A	@	<public-ip>
+
+(Optional)
+
+Type	Name	Value
+A	www	<public-ip>
+Step 4: Save DNS Settings
+Wait 5–10 minutes (or up to 24 hrs)
+🔷 PART 8: Access Website via Domain
+
+Open:
+
+http://yourdomain.com
+
+or
+
+http://www.yourdomain.com
+
+✅ Website accessible via domain 🎉
+
+🔷 PART 9: (Optional) Remote Update
+Edit file:
+cd /var/www/html
+sudo nano index.html
+
+Refresh browser → changes visible
+
+🔷 Architecture (For Viva)
+User → Internet → Domain Name → DNS → Public IP → Azure VM → Apache → Website
+🔷 Final Output
+
+✔️ VM created on Azure
+✔️ Apache web server installed
+✔️ Static website deployed
+✔️ Accessible via Public IP
+✔️ Accessible via Domain Name
+
+🔷 Viva Questions
+1. What is a static website?
+
+➡️ Website with fixed content (HTML, CSS)
+
+2. What is Public IP?
+
+➡️ Address used to access VM over internet
+
+3. What is DNS?
+
+➡️ Converts domain name into IP address
+
+4. What is Apache?
+
+➡️ Web server to host websites
+
+5. What is A Record?
+
+➡️ Maps domain to IP address
+
+✅ Conclusion
+
+➡️ Successfully deployed a static website on Azure VM and configured it to be accessible using both public IP and domain name.

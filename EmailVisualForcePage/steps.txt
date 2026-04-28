@@ -1,0 +1,117 @@
+Apex Email Service Implementation Guide
+This document outlines the steps and code required to develop a Salesforce Apex program that
+sends email notifications (with or without attachments) via a Visualforce frontend.
+1. Overview
+The solution consists of two primary files:
+1. EmailController.apxc: An Apex class that handles the logic for email composition,
+attachment processing, and validation.
+2. EmailPage.vfp: A Visualforce page that provides the user interface for inputting email
+details and uploading files.
+
+2. Implementation Steps
+Step 1: Create the Apex Controller
+1. Log in to your Salesforce Org.
+2. Navigate to Setup > Developer Console.
+3. Go to File > New > Apex Class.
+4. Name the class EmailController.
+5. Paste the provided Apex code and Save (Ctrl+S).
+Step 2: Create the Visualforce Page
+1. In the Developer Console, go to File > New > Visualforce Page.
+2. Name the page EmailPage.
+3. Paste the provided Visualforce markup and Save (Ctrl+S).
+Step 3: Configure Email Deliverability
+1. Go to Setup in Salesforce.
+2. Search for Deliverability in the Quick Find box.
+3. Ensure the Access level is set to All email. This is required for testing in Sandboxes or
+Developer Editions to allow emails to be sent to external addresses.
+
+3. Source Code
+File 1: EmailController.apxc
+public class EmailController {
+    // Variable for the Recipient
+    public String toEmail { get; set; }
+    public String subject { get; set; }
+    public String body { get; set; }
+    
+    // Variables for the Attachment
+    public String fileName { get; set; } 
+    public Blob fileBody { get; set; }
+
+    public PageReference sendEmail() {
+        try {
+            // 1. Validate Email Format
+            if (!isValidEmail(toEmail)) {
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Invalid Email ID: Please enter a correct email format.'));
+                return null;
+            }
+
+            // 2. Create Email
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new String[] {toEmail});
+            mail.setSubject(subject);
+            mail.setPlainTextBody(body);
+
+            // 3. Attach File if it exists
+            if (fileBody != null) {
+                Messaging.EmailFileAttachment efa = new Messaging.EmailFileAttachment();
+                efa.setFileName(fileName);
+                efa.setBody(fileBody);
+                mail.setFileAttachments(new Messaging.EmailFileAttachment[] {efa});
+            }
+
+            // 4. Send
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+            
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM, 'Email sent successfully!'));
+            clearForm();
+
+        } catch (Exception e) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Error: ' + e.getMessage()));
+        }
+        return null;
+    }
+
+    private Boolean isValidEmail(String email) {
+        if (String.isBlank(email)) return false;
+        String emailRegex = '^[a-zA-Z0-9._|\\\\%#~`=?&/$^*!}{+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$';
+        return Pattern.compile(emailRegex).matcher(email).matches();
+    }
+
+    private void clearForm() {
+        toEmail = ''; subject = ''; body = ''; fileBody = null; fileName = '';
+    }
+}
+
+File 2: EmailPage.vfp
+<apex:page controller="EmailController">
+    <apex:sectionHeader title="Email Service" subtitle="Send Notification" />
+    
+    <apex:form id="theForm">
+        <apex:pageMessages />
+        
+        <apex:pageBlock title="Email Composer">
+            <apex:pageBlockSection columns="1">
+                <apex:inputText label="To Address" value="{!toEmail}" required="true" />
+                <apex:inputText label="Subject" value="{!subject}" />
+                <apex:inputTextarea label="Body" value="{!body}" rows="8" cols="60" />
+                
+                <apex:pageBlockSectionItem>
+                    <apex:outputLabel value="Select Attachment" />
+                    <apex:inputFile value="{!fileBody}" filename="{!fileName}" />
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!sendEmail}" value="Send Email" />
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+4. Summary of Logic
+● Property Mapping: The Visualforce page uses {!toEmail}, {!fileName}, and
+{!fileBody} which correspond exactly to the public variables in the Apex controller.
+● Error Handling: The isValidEmail method ensures the user provides a valid
+address. If invalid, a specific message is displayed via <apex:pageMessages />.
+● Clean-up: The clearForm() method ensures that the file body and fields are wiped
+after a successful send, preventing duplicate uploads or confusing UI states.

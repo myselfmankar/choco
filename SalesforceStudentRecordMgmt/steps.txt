@@ -1,0 +1,190 @@
+# 📘 Salesforce Application Documentation
+
+## Student Records Management System (Apex + Visualforce)
+
+---
+
+# 🔷 1. OBJECT DETAILS
+
+| Property     | Value             |
+| ------------ | ----------------- |
+| Object Label | StudentRecords    |
+| Object Name  | StudentRecords    |
+| API Name     | StudentRecords__c |
+| Record Name  | Name              |
+| Data Type    | Text              |
+
+---
+
+# 🔷 2. FIELDS DETAILS
+
+| Field Label | Field Name | API Name     | Data Type |
+| ----------- | ---------- | ------------ | --------- |
+| Name        | Name       | Name         | Text      |
+| Roll No     | Roll_No    | Roll_No__c   | Number    |
+| Class       | Class      | Class__c     | Text      |
+| Mobile No   | Mobile_No  | Mobile_No__c | Phone     |
+
+---
+
+# 🔷 3. APEX CLASS DETAILS
+
+### Class Name: StudentController
+
+## 🔹 Apex Code:
+
+```apex
+public class StudentController {
+
+    public StudentRecords__c studentObj { get; set; }
+    public List<StudentRecords__c> studentList { get; set; }
+
+    // Constructor
+    public StudentController() {
+        studentObj = new StudentRecords__c();
+        loadStudents();
+    }
+
+    // Load Records
+    public void loadStudents() {
+        studentList = [SELECT Id, Name, Roll_No__c, Class__c, Mobile_No__c FROM StudentRecords__c];
+    }
+
+    // Save Record
+    public void saveStudent() {
+        insert studentObj;
+        studentObj = new StudentRecords__c();
+        loadStudents();
+    }
+
+    // Delete Record
+    public void deleteStudent() {
+        delete studentObj;
+        studentObj = new StudentRecords__c();
+        loadStudents();
+    }
+}
+```
+
+---
+
+# 🔷 4. VISUALFORCE PAGE DETAILS
+
+| Property   | Value              |
+| ---------- | ------------------ |
+| Page Name  | StudentController  |
+| Controller | StudentController  |
+
+## 🔹 Visualforce Code:
+
+```html
+<apex:page controller="StudentController">
+
+    <apex:form>
+
+        <h2>Student Records Management</h2>
+
+        <!-- Form -->
+        <apex:pageBlock title="Add Student">
+            <apex:pageBlockSection columns="1">
+
+                <apex:inputText value="{!studentObj.Name}" label="Name"/>
+                <apex:inputText value="{!studentObj.Roll_No__c}" label="Roll No"/>
+                <apex:inputText value="{!studentObj.Class__c}" label="Class"/>
+                <apex:inputText value="{!studentObj.Mobile_No__c}" label="Mobile No"/>
+
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Save" action="{!saveStudent}" rerender="table"/>
+        </apex:pageBlock>
+
+        <!-- Table -->
+        <apex:pageBlock title="Student List">
+
+            <apex:pageBlockTable value="{!studentList}" var="s" id="table">
+
+                <apex:column value="{!s.Name}" headerValue="Name"/>
+                <apex:column value="{!s.Roll_No__c}" headerValue="Roll No"/>
+                <apex:column value="{!s.Class__c}" headerValue="Class"/>
+                <apex:column value="{!s.Mobile_No__c}" headerValue="Mobile No"/>
+
+                <apex:column headerValue="Action">
+                    <apex:commandButton value="Delete"
+                        action="{!deleteStudent}"
+                        rerender="table">
+                        <apex:param name="id" value="{!s.Id}" assignTo="{!studentObj.Id}"/>
+                    </apex:commandButton>
+                </apex:column>
+
+            </apex:pageBlockTable>
+
+        </apex:pageBlock>
+
+    </apex:form>
+</apex:page>
+```
+
+---
+
+# 🔷 5. STEPS FOLLOWED
+
+## Step 1: Create Custom Object
+
+* Go to Setup → Object Manager
+* Click Create → Custom Object
+* Enter details and save
+
+## Step 2: Create Fields
+
+* Go to Fields & Relationships
+* Create Roll No, Class, Mobile No
+
+## Step 3: Create Apex Class
+
+* Go to Apex Classes → New
+* Write controller code
+
+## Step 4: Create Visualforce Page
+
+* Go to Visualforce Pages → New
+* Write UI code and connect controller
+
+## Step 5: Run Application
+
+* Click Preview
+* Add, view and delete records
+
+---
+
+# 🔷 6. FEATURES IMPLEMENTED
+
+✔ Add Student Record
+✔ View Student Records
+✔ Delete Student Record
+
+---
+
+# 🔷 7. TECHNOLOGIES USED
+
+* Apex (Backend Logic)
+* Visualforce (UI)
+* SOQL (Query Language)
+* Salesforce Platform
+
+---
+
+# 🔷 8. CONCLUSION
+
+This application successfully demonstrates how to manage student records in Salesforce using Apex and Visualforce. It performs basic CRUD operations and provides a simple user interface for interaction.
+
+---
+
+# 🔥 (FOR EXAM QUICK REVISION)
+
+* Custom Object → StudentRecords__c
+* Apex → Handles logic
+* Visualforce → UI
+* SOQL → Fetch data
+* DML → Insert/Delete records
+
+---

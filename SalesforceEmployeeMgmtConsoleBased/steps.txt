@@ -1,0 +1,250 @@
+# Employee Management System (Salesforce - Apex Console Based)
+
+---
+
+# 1. Objective
+
+Develop a console-based Employee Management System using Apex in Salesforce to perform CRUD operations (Create, Read, Update, Delete).
+
+---
+
+# 2. Custom Object Creation
+
+## Object Details
+
+* Label: Employee
+* Plural Label: Employees
+* Object Name: Employee__c
+* Record Name: Employee Name
+* Deployment Status: Deployed
+
+---
+
+# 3. Fields Creation
+
+Go to: Object Manager → Employee → Fields & Relationships → New
+
+## Fields:
+
+### 1. Employee ID
+
+* Data Type: Auto Number
+* Field Label: Employee ID
+* Field Name: Emp_ID__c
+* Display Format: EMP-{0000}
+* Starting Number: 1
+
+### 2. Employee Name
+
+* Data Type: Text
+* Field Label: Employee Name
+* Field Name: Emp_Name__c
+* Length: 100
+
+### 3. Email
+
+* Data Type: Email
+* Field Label: Email
+* Field Name: Email__c
+
+### 4. Birth Date
+
+* Data Type: Date
+* Field Label: Birth Date
+* Field Name: Birth_Date__c
+
+### 5. Department
+
+* Data Type: Picklist
+* Field Label: Department
+* Field Name: Department__c
+* Values:
+
+  * IT
+  * HR
+  * Finance
+  * Sales
+  * Marketing
+
+---
+
+# 4. Apex Class
+
+## File Name: EmployeeManagement.apxc
+
+```apex
+public class EmployeeManagement {
+
+    // =========================
+    // ADD EMPLOYEE
+    // =========================
+    public static void addEmployee(String name, String email, Date birthDate, String dept) {
+        
+        // Email validation
+        if(!isValidEmail(email)) {
+            System.debug('Invalid Email ID!');
+            return;
+        }
+
+        // Insert record (Emp_ID__c is Auto Number → no need to pass)
+        Employee__c emp = new Employee__c(
+            Emp_Name__c = name,
+            Email__c = email,
+            Birth_Date__c = birthDate,
+            Department__c = dept
+        );
+
+        insert emp;
+        System.debug('Employee Added Successfully!');
+    }
+
+    // =========================
+    // VIEW EMPLOYEES
+    // =========================
+    public static void viewEmployees() {
+        List<Employee__c> empList = [
+            SELECT Emp_ID__c, Emp_Name__c, Email__c, Birth_Date__c, Department__c
+            FROM Employee__c
+        ];
+
+        for(Employee__c e : empList) {
+            System.debug(
+                'ID: ' + e.Emp_ID__c +
+                ' | Name: ' + e.Emp_Name__c +
+                ' | Email: ' + e.Email__c +
+                ' | DOB: ' + e.Birth_Date__c +
+                ' | Dept: ' + e.Department__c
+            );
+        }
+    }
+
+    // =========================
+    // UPDATE EMPLOYEE (by Emp_ID)
+    // =========================
+    public static void updateEmployee(String empId, String newDept) {
+
+        List<Employee__c> empList = [
+            SELECT Id, Department__c
+            FROM Employee__c
+            WHERE Emp_ID__c = :empId
+            LIMIT 1
+        ];
+
+        if(empList.size() > 0) {
+            empList[0].Department__c = newDept;
+            update empList;
+            System.debug('Employee Updated Successfully!');
+        } else {
+            System.debug('Employee Not Found!');
+        }
+    }
+
+    // =========================
+    // DELETE EMPLOYEE (by Emp_ID)
+    // =========================
+    public static void deleteEmployee(String empId) {
+
+        List<Employee__c> empList = [
+            SELECT Id
+            FROM Employee__c
+            WHERE Emp_ID__c = :empId
+            LIMIT 1
+        ];
+
+        if(empList.size() > 0) {
+            delete empList;
+            System.debug('Employee Deleted Successfully!');
+        } else {
+            System.debug('Employee Not Found!');
+        }
+    }
+
+    // =========================
+    // EMAIL VALIDATION
+    // =========================
+    public static Boolean isValidEmail(String email) {
+        Pattern pattern = Pattern.compile('^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$');
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    // =========================
+    // MENU DISPLAY
+    // =========================
+    public static void menu() {
+        System.debug('------ Employee Management ------');
+        System.debug('1. Add Employee');
+        System.debug('2. View Employees');
+        System.debug('3. Update Employee');
+        System.debug('4. Delete Employee');
+        System.debug('--------------------------------');
+    }
+}
+```
+
+---
+
+# 5. How to Run the Program
+
+## Steps:
+
+1. Open Salesforce
+2. Click Settings (⚙️)
+3. Open Developer Console
+4. Click Debug → Open Execute Anonymous Window (Ctrl + E)
+
+---
+
+# 6. Test Commands
+
+## Add Employee
+
+```apex
+EmployeeManagement.addEmployee('Omkar', 'omkar@gmail.com', Date.newInstance(2003,5,10), 'IT');
+```
+
+## View Employees
+
+```apex
+EmployeeManagement.viewEmployees();
+```
+
+## Update Employee
+
+```apex
+EmployeeManagement.updateEmployee('EMP-0001', 'HR');
+```
+
+## Delete Employee
+
+```apex
+EmployeeManagement.deleteEmployee('EMP-0001');
+```
+
+---
+
+# 7. Output
+
+Output is visible in:
+Developer Console → Logs → USER_DEBUG
+
+Example:
+USER_DEBUG | Employee Added Successfully!
+
+---
+
+# 8. Key Concepts Used
+
+* Custom Object (Employee__c)
+* Auto Number Field
+* Picklist Field
+* SOQL Queries
+* DML Operations (Insert, Update, Delete)
+* Apex Programming
+* Debug Logs for Output
+
+---
+
+# 9. Conclusion
+
+The system successfully performs employee record management using Apex in a console-based approach in Salesforce.

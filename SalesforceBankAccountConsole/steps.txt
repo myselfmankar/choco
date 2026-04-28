@@ -1,0 +1,146 @@
+1. Create Custom Object
+✅ Object Details
+Label: BankAccount
+Object Name: BankAccount
+Record Name: Emp ID
+Data Type: Text
+✔️ Allow Reports & Activities (optional)
+
+🔹 👉 NEXT STEP (VERY IMPORTANT)
+🔹 Step 2: Create Fields
+
+Now go to:
+👉 Fields & Relationships (left side)
+
+Then click:
+👉 New
+
+✅ Create these fields one by one:
+1️⃣ Emp Name
+Data Type: Text
+Field Label: Emp Name
+Length: 50
+2️⃣ Email
+Data Type: Email
+Field Label: Email
+3️⃣ Birth Date
+Data Type: Date
+Field Label: Birth Date
+4️⃣ Department
+Data Type: Picklist
+Field Label: Department
+
+👉 Add values:
+Savings
+Current
+Loans
+Credit Card
+Customer Service
+Investment
+
+🔹 ✅ STEP 3: Create Apex Class
+👉 Go to:
+
+Setup → Developer Console
+
+Then:
+👉 File → New → Apex Class
+
+✅ Class Name:
+BankAccountSystem
+🔹 Paste this COMPLETE code:
+public class BankAccountSystem {
+
+    // 🔹 Add Account
+    public static void addAccount(String accId, String name, String email, Date dob, String dept) {
+        BankAccount__c acc = new BankAccount__c();
+
+        acc.Name = accId; // Emp ID (Record Name)
+        acc.Emp_Name__c = name;
+        acc.Email__c = email;
+        acc.Birth_Date__c = dob;
+        acc.Department__c = dept;
+
+        insert acc;
+        System.debug('Account Added Successfully!');
+    }
+
+    // 🔹 View Accounts
+    public static void viewAccounts() {
+        List<BankAccount__c> accList = [
+            SELECT Name, Emp_Name__c, Email__c, Birth_Date__c, Department__c 
+            FROM BankAccount__c
+        ];
+
+        for(BankAccount__c acc : accList) {
+            System.debug('Account ID: ' + acc.Name);
+            System.debug('Name: ' + acc.Emp_Name__c);
+            System.debug('Email: ' + acc.Email__c);
+            System.debug('DOB: ' + acc.Birth_Date__c);
+            System.debug('Department: ' + acc.Department__c);
+            System.debug('----------------------');
+        }
+    }
+
+    // 🔹 Update Account
+    public static void updateAccount(String accId, String newEmail) {
+        BankAccount__c acc = [
+            SELECT Id, Email__c 
+            FROM BankAccount__c 
+            WHERE Name = :accId 
+            LIMIT 1
+        ];
+
+        acc.Email__c = newEmail;
+        update acc;
+
+        System.debug('Account Updated Successfully!');
+    }
+
+    // 🔹 Delete Account
+    public static void deleteAccount(String accId) {
+        BankAccount__c acc = [
+            SELECT Id 
+            FROM BankAccount__c 
+            WHERE Name = :accId 
+            LIMIT 1
+        ];
+
+        delete acc;
+        System.debug('Account Deleted Successfully!');
+    }
+}
+🔹 ✅ STEP 4: Run (Menu Simulation)
+
+Since this is console-based, we test using:
+
+👉 Debug → Open Execute Anonymous Window
+
+🔹 Run These Commands
+✅ Add Account
+BankAccountSystem.addAccount('A101', 'Omkar', 'omkar@gmail.com', Date.newInstance(2003,5,10), 'Savings');
+✅ View Accounts
+BankAccountSystem.viewAccounts();
+✅ Update Account
+BankAccountSystem.updateAccount('A101', 'newmail@gmail.com');
+✅ Delete Account
+BankAccountSystem.deleteAccount('A101');
+🔹 ✅ STEP 5: Check Output
+
+👉 Go to:
+Logs → Debug Logs
+
+You’ll see output like:
+
+Account ID: A101
+Name: Omkar
+Email: omkar@gmail.com
+DOB: 2003-05-10
+Department: Savings
+🔹 🔥 IMPORTANT FOR EXAM
+
+✔ CRUD operations done (Insert, Select, Update, Delete)
+✔ SOQL used
+✔ Console-based execution
+✔ Picklist used
+✔ Custom object used

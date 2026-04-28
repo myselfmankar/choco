@@ -1,0 +1,321 @@
+# **Secure File Sharing Between Cloud Instances (Azure) – Linux/Ubuntu**
+
+---
+
+# 🔹 **1. Objective**
+
+To create a secure cloud environment using Microsoft Azure where two Virtual Machines (VM1 and VM2) communicate within a Virtual Network and transfer files securely using SSH and SCP with proper access control using a Linux/Ubuntu system.
+
+---
+
+# 🔹 **2. Resource Creation in Azure**
+
+## ✅ **Resource Group**
+
+* Name: `SecureFileRG`
+* Purpose: To manage all resources together
+
+---
+
+## ✅ **Virtual Network (VNet)**
+
+* Name: `SecureVNet`
+* Address Space: `10.0.0.0/16`
+
+### Subnet:
+
+* Name: `Subnet1`
+* Address Range: `10.0.0.0/24`
+
+---
+
+## ✅ **Virtual Machine 1 (VM1)**
+
+* Name: `VM1`
+* OS: Ubuntu 22.04 LTS
+* Size: Standard_B1s
+* Authentication: SSH Key
+* Username: `azureuser`
+* Public IP: Enabled
+* Private IP: `10.0.0.4`
+* VNet: `SecureVNet`
+* Subnet: `Subnet1`
+* Key File: `VM1_key.pem`
+
+---
+
+## ✅ **Virtual Machine 2 (VM2)**
+
+* Name: `VM2`
+* OS: Ubuntu 22.04 LTS
+* Size: Standard_B1s
+* Authentication: SSH Key
+* Username: `azureuser`
+* Public IP: Enabled
+* Private IP: `10.0.0.5`
+* VNet: `SecureVNet`
+* Subnet: `Subnet1`
+* Key File: `VM2_key.pem`
+
+---
+
+## ✅ **Network Security Group (NSG)**
+
+* Allow Port 22 (SSH)
+* Source: Any (or `10.0.0.0/16` for better security)
+
+---
+
+# 🔹 **3. Connecting to VM1 (Linux/Ubuntu Terminal)**
+
+## ✅ Set Key Permissions
+
+```bash
+cd ~/Downloads
+chmod 400 VM1_key.pem
+```
+
+---
+
+## ✅ SSH into VM1
+
+```bash
+ssh -i VM1_key.pem azureuser@20.193.139.64
+```
+
+---
+
+# 🔹 **4. Connecting VM1 → VM2 (Private Network)**
+
+## ❗ Important Concept
+
+* Public IP → Used from local machine to VM
+* Private IP → Used between VMs inside VNet
+
+---
+
+## ✅ SSH from VM1 to VM2
+
+```bash
+ssh azureuser@10.0.0.5
+```
+
+---
+
+# 🔹 **5. Fixing SSH Authentication Issue**
+
+## ❌ Problem:
+
+```bash
+Permission denied (publickey)
+```
+
+---
+
+## ✅ Solution:
+
+### Step 1: Generate Key on VM1
+
+```bash
+ssh-keygen -t rsa
+```
+
+---
+
+### Step 2: Copy Public Key
+
+```bash
+cat ~/.ssh/id_rsa.pub
+```
+
+---
+
+### Step 3: Login to VM2 from local machine
+
+```bash
+ssh -i VM2_key.pem azureuser@<VM2-PUBLIC-IP>
+```
+
+---
+
+### Step 4: Add Key in VM2
+
+```bash
+mkdir -p ~/.ssh
+nano ~/.ssh/authorized_keys
+```
+
+👉 Paste the copied key and save
+
+---
+
+### Step 5: Set Permissions
+
+```bash
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+---
+
+### Step 6: Retry Connection (from VM1)
+
+```bash
+ssh azureuser@10.0.0.5
+```
+
+---
+
+# 🔹 **6. Secure File Transfer**
+
+## ✅ Create File in VM1
+
+```bash
+echo "Hello from VM1" > file.txt
+```
+
+---
+
+## ✅ Transfer File to VM2
+
+```bash
+scp file.txt azureuser@10.0.0.5:/home/azureuser/
+```
+
+---
+
+## ✅ Verify File in VM2
+
+```bash
+cat file.txt
+```
+
+---
+
+# 🔹 **7. Apply Security Permissions**
+
+```bash
+chmod 600 file.txt
+```
+
+---
+
+# 🔹 **8. Issues Faced and Solutions**
+
+---
+
+## ❌ Issue 1: Connection Timeout
+
+```bash
+ssh azureuser@10.0.0.4
+```
+
+### Cause:
+
+Tried accessing private IP from local machine
+
+### Solution:
+
+```bash
+ssh -i VM1_key.pem azureuser@<VM1-PUBLIC-IP>
+```
+
+---
+
+## ❌ Issue 2: Permission Denied (Key)
+
+```bash
+Load key "VM1_key.pem": bad permissions
+```
+
+### Solution:
+
+```bash
+chmod 400 VM1_key.pem
+```
+
+---
+
+## ❌ Issue 3: SSH Between VMs Failed
+
+```bash
+Permission denied (publickey)
+```
+
+### Cause:
+
+VM2 does not trust VM1 key
+
+### Solution:
+
+* Add public key to `authorized_keys`
+
+---
+
+## ❌ Issue 4: ssh-copy-id Failed
+
+```bash
+Permission denied (publickey)
+```
+
+### Cause:
+
+Password authentication disabled
+
+### Solution:
+
+* Manual key copy method
+
+---
+
+# 🔹 **9. Final Architecture**
+
+* VM1 and VM2 in same Virtual Network
+* Communication via Private IP
+* File transfer using SCP (SSH-based secure protocol)
+
+### Security:
+
+* SSH key authentication
+* NSG rules
+* File permissions
+
+---
+
+# 🔹 **10. Conclusion**
+
+Secure file sharing between two Azure virtual machines was successfully implemented using Linux commands. The setup ensures secure communication, authentication, and controlled access using SSH and SCP.
+
+---
+
+# 🔹 **11. Commands Summary**
+
+```bash
+# SSH into VM1
+ssh -i VM1_key.pem azureuser@<VM1-PUBLIC-IP>
+
+# SSH VM1 → VM2
+ssh azureuser@<VM2-PRIVATE-IP>
+
+# Generate key
+ssh-keygen -t rsa
+
+# Copy key
+cat ~/.ssh/id_rsa.pub
+
+# File transfer
+scp file.txt azureuser@<VM2-PRIVATE-IP>:/home/azureuser/
+
+# Permissions
+chmod 600 file.txt
+```
+
+---
+
+# ✅ **Result**
+
+✔ Secure communication established
+✔ File successfully transferred
+✔ Access permissions enforced
+
+---

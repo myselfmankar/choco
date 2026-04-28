@@ -1,0 +1,155 @@
+✅ 1. Create Custom Object
+
+👉 Go to:
+Setup → Object Manager → Create → Custom Object
+
+🔹 Object Details
+Label: Product Inventory
+Plural Label: Product Inventories
+Object Name: Product_Inventory
+✔ Check: Allow Reports, Allow Activities
+
+Click Save
+
+
+✅ 2. Create Fields
+
+👉 Go to:
+Object Manager → Product Inventory → Fields & Relationships → New
+
+🔹 Create these fields:
+1. Product Name
+Data Type: Text
+Label: Product Name
+Length: 100
+
+2. Serial No
+Data Type: Text
+Label: Serial No
+Length: 50
+
+3. Manufacture Date
+Data Type: Date
+Label: Manufacture Date
+4. Expiry Date
+Data Type: Date
+Label: Expiry Date
+
+✔ After creating all fields → Click Save
+
+
+3. Create Apex Class
+
+👉 Go to:
+Setup → Apex Classes → New
+
+🔹 File Name: ProductController.apxc
+```
+public class ProductController {
+
+    public Product_Inventory__c product {get; set;}
+    public List<Product_Inventory__c> productList {get; set;}
+    public Id deleteId {get; set;}   // for delete operation
+
+    // Constructor
+    public ProductController() {
+        product = new Product_Inventory__c();
+        loadProducts();
+    }
+
+    // Load products
+    public void loadProducts() {
+        productList = [
+            SELECT Id, Product_Name__c, Serial_No__c, Manufacture_Date__c, Expiry_Date__c 
+            FROM Product_Inventory__c
+        ];
+    }
+
+    // Add Product
+    public void addProduct() {
+        insert product;
+        product = new Product_Inventory__c();  // reset form
+        loadProducts();
+    }
+
+    // Delete Product
+    public void deleteProduct() {
+        if(deleteId != null) {
+            delete [SELECT Id FROM Product_Inventory__c WHERE Id = :deleteId];
+            loadProducts();
+        }
+    }
+}
+```
+
+✅ 4. Create Visualforce Page
+
+👉 Go to:
+Setup → Visualforce Pages → New
+
+🔹 File Name: ProductPage.vfp
+```
+<apex:page controller="ProductController">
+
+    <apex:form>
+
+        <h2>Product Inventory Management</h2>
+
+        <!-- Add Product -->
+        <apex:pageBlock title="Add Product">
+
+            <apex:pageBlockSection columns="2">
+
+                <apex:inputText value="{!product.Product_Name__c}" label="Product Name"/>
+                <apex:inputText value="{!product.Serial_No__c}" label="Serial No"/>
+                <apex:inputField value="{!product.Manufacture_Date__c}"/>
+                <apex:inputField value="{!product.Expiry_Date__c}"/>
+
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Add Product" 
+                                action="{!addProduct}" 
+                                rerender="productTable"/>
+
+        </apex:pageBlock>
+
+        <!-- Product List -->
+        <apex:pageBlock title="Product List">
+
+            <apex:pageBlockTable value="{!productList}" var="p" id="productTable">
+
+                <apex:column headerValue="Product Name">
+                    {!p.Product_Name__c}
+                </apex:column>
+
+                <apex:column headerValue="Serial No">
+                    {!p.Serial_No__c}
+                </apex:column>
+
+                <apex:column headerValue="Manufacture Date">
+                    {!p.Manufacture_Date__c}
+                </apex:column>
+
+                <apex:column headerValue="Expiry Date">
+                    {!p.Expiry_Date__c}
+                </apex:column>
+
+                <apex:column headerValue="Action">
+                    <apex:commandButton value="Delete" 
+                                        action="{!deleteProduct}" 
+                                        rerender="productTable">
+                        <apex:param name="delId" 
+                                    value="{!p.Id}" 
+                                    assignTo="{!deleteId}"/>
+                    </apex:commandButton>
+                </apex:column>
+
+            </apex:pageBlockTable>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>
+```
+
