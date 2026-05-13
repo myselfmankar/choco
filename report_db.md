@@ -1,14 +1,56 @@
-# Database Topology Report
+| App/Folder           | Database Name  |
+|----------------------|---------------|
+| blog_mern_app        | blog_db       |
+| ecommerce_mern_app   | ecommerce_db  |
+| event_mern_app       | event_db      |
+| pcs_mern_app         | pcs_db        |
+| student_mern_app     | student_db    |
+| task_mern_app        | task_db       |
 
-This report documents the database and collection structure for all MERN applications in the workspace. Logical bugs related to implicit collection naming and data persistence have been fixed.
 
-| App Name | Database Name | Collection Name | Description | Useful MongoDB Commands |
-| :--- | :--- | :--- | :--- | :--- |
-| **Blog App** | `blog_db` | `posts` | Stores blog articles, titles, and authors. | `use blog_db; db.posts.find().pretty();` |
-| **Ecommerce App** | `ecommerce_db` | `products` | Stores product catalog (price, category, image). | `use ecommerce_db; db.products.find();` |
-| | | `cartitems` | Temporary storage for user cart. | `db.cartitems.find();` |
-| | | `orders` | **NEW:** Persistent storage for confirmed orders. | `db.orders.find().sort({orderedAt: -1});` |
-| **Event App** | `event_db` | `registrations` | Stores event participant details and team size. | `use event_db; db.registrations.find();` |
-| **Student App** | `student_db` | `students` | Stores student records, roll numbers, and marks. | `use student_db; db.students.find();` |
-| **Task App** | `task_db` | `tasks` | Stores todo items, category, and completion status. | `use task_db; db.tasks.find();` |
-| **Aura Cloud (PCS)**| `pcs_db` | `files` | Metadata for uploaded files (size, mimeType). | `use pcs_db; db.files.find();` |
+1. mongosh
+
+2. show databases
+
+3. use <db_name>
+
+4. show collections
+
+5. db.<collection_name>.find().pretty();
+
+
+----
+
+For example:
+```
+test> show databases
+admin          40.00 KiB
+blog_db         8.00 KiB
+config        108.00 KiB
+ecommerce_db   96.00 KiB
+event_db       40.00 KiB
+local          72.00 KiB
+pcs_db         40.00 KiB
+
+test> use ecommerce_db
+switched to db ecommerce_db
+
+ecommerce_db> show collections
+cartitems
+orders
+products
+
+ecommerce_db> db.orders.find()
+
+ecommerce_db> use pcs_db
+switched to db pcs_db
+
+pcs_db> show collections
+files
+
+pcs_db> db.files.find()
+
+
+```
+
+
