@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Coffee Nook - Help Desk</title>
+<link rel="stylesheet" href="org.css">
+</head>
+
+<body>
+<div class="hero">
+    <h1>The Coffee Nook ☕</h1>
+    <p>
+        Welcome to The Coffee Nook. 
+        Enjoy handcrafted coffee, desserts, and smart customer support 
+        with our AI-powered Coffee Help Desk Assistant.
+    </p>
+    <button class="btn" onclick="toggleChat()">
+        Chat With Assistant
+    </button>
+</div>
+
+<!-- CHAT ICON -->
+<div id="chat-icon" onclick="toggleChat()">
+    ☕
+</div>
+
+<!-- CHAT BOX -->
+<div id="chat-box">
+    <div id="chat-header">
+        Coffee Help Desk Assistant
+        <button class="close-btn" onclick="toggleChat()">
+        ✖
+        </button>
+    </div>
+    <div id="chat-messages">
+        <div class="msg bot-msg">
+            Hello 👋 Welcome to The Coffee Nook.
+            Ask me about menu, prices, refunds, delayed orders, recommendations, etc.
+        </div>
+    </div>
+
+    <!-- QUICK BUTTONS -->
+    <div class="quick-buttons">
+        <button class="quick-btn" onclick="quickMessage('menu')">
+            Menu
+        </button>
+        <button class="quick-btn" onclick="quickMessage('price')">
+            Prices
+        </button>
+        <button class="quick-btn" onclick="quickMessage('refund')">
+            Refund
+        </button>
+        <button class="quick-btn" onclick="quickMessage('order delayed')">
+            Order Delay
+        </button>
+        <button class="quick-btn" onclick="quickMessage('recommend coffee')">
+            Recommend
+        </button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="chat-footer">
+        <input
+            type="text"
+            id="user-input"
+            placeholder="Type your message..."
+            onkeypress="if(event.key==='Enter') sendMessage()"
+        >
+        <button id="send-btn" onclick="sendMessage()">
+            Send
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // OPEN/CLOSE CHAT
+    function toggleChat(){
+        const chatBox = document.getElementById("chat-box");
+        if(chatBox.style.display === "flex"){
+            chatBox.style.display = "none";
+        }else{
+            chatBox.style.display = "flex";
+        }
+    }
+    // RULE-BASED KNOWLEDGE BASE
+    const rules = [
+        {
+            keywords:["want", "have", "need", "looking for", "take"],
+            response:"Sure! Kindly contact our staff at the counter for placing your order. We will be happy to serve you!"
+        },
+
+        {
+            keywords:["hello","hi","hey"],
+            response:"Hello! Welcome to The Coffee Nook ☕"
+        },
+
+        {
+            keywords:["menu","coffee","drink", "order"],
+            response:"We serve Espresso, Cappuccino, Latte, Cold Brew, Mocha, Brownies and Cookies."
+        },
+
+        {
+            keywords:["price","cost","rate"],
+            response:"Coffee prices range between ₹150 and ₹350."
+        },
+
+        {
+            keywords:["hours","timing","open","close"],
+            response:"We are open daily from 8 AM to 8 PM."
+        },
+
+        {
+            keywords:["location","address","where"],
+            response:"We are located at MG Road, Pune."
+        },
+
+        {
+            keywords:["refund","money","return"],
+            response:"Refund requests are processed within 3-5 working days."
+        },
+
+        {
+            keywords:["delay","late","waiting"],
+            response:"We apologize for the delay. Your order will arrive shortly."
+        },
+
+        {
+            keywords:["wrong order","incorrect","mistake"],
+            response:"Sorry for the inconvenience. Please contact the counter for replacement."
+        },
+
+        {
+            keywords:["payment","upi","transaction"],
+            response:"Please retry the payment or contact support if the issue continues."
+        },
+
+        {
+            keywords:["recommend","suggest"],
+            response:"If you enjoy strong coffee, try Espresso. For creamy coffee, try Latte."
+        },
+
+        {
+            keywords:["cold"],
+            response:"Our best cold coffee options are Cold Brew and Mocha Frappe."
+        },
+
+        {
+            keywords:["bye","thanks"],
+            response:"Thank you for visiting The Coffee Nook ☕ Have a great day!"
+        }
+    ];
+
+    // GET RESPONSE
+    function getBotResponse(message){
+        message = message.toLowerCase();
+        for(let rule of rules){
+            for(let word of rule.keywords){
+                if(message.includes(word)){
+                    return rule.response;
+                }
+            }
+        }
+        return "Sorry, I could not understand your request. Please try again.";
+    }
+
+    // APPEND MESSAGE
+    function appendMessage(sender,text){
+        const chat = document.getElementById("chat-messages");
+        const div = document.createElement("div");
+        div.classList.add("msg");
+        if(sender === "user"){
+            div.classList.add("user-msg");
+        }else{
+            div.classList.add("bot-msg");
+        }
+        div.textContent = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    // SEND MESSAGE
+    function sendMessage(){
+        const input = document.getElementById("user-input");
+        const message = input.value.trim();
+        if(message === "") return;
+        appendMessage("user",message);
+        const response = getBotResponse(message);
+        setTimeout(()=>{
+            appendMessage("bot",response);
+        },500);
+        input.value = "";
+    }
+
+    // QUICK BUTTON MESSAGE
+    function quickMessage(text){
+        appendMessage("user",text);
+        const response = getBotResponse(text);
+        setTimeout(()=>{
+            appendMessage("bot",response);
+        },500);
+    }
+</script>
+</body>
+</html>

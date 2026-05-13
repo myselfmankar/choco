@@ -1,0 +1,12 @@
+ncat 
+
+1. find receiver ip --> hostname -I
+> 192.168.1.25
+
+2. on receiver --> nc -l 9000 > file.name
+
+3. on sender --> nc 192.168.1.25 9000 < file.name
+
+
+nc -l 9000 > file.txt
+nc RECEIVER_IO 9000 < file.txt

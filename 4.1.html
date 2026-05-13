@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Coffee Nook - Help Desk</title>
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:Arial;
+    }
+
+    body{
+        background:#f8f3ee;
+        color:#4b2c20;
+    }
+
+    /* HERO */
+    .hero{
+        height:100vh;
+        display:grid;
+        place-items:center;
+        text-align:center;
+        padding:20px;
+    }
+
+
+    button{
+        cursor:pointer;
+        border:none;
+        background:inherit;
+        font:inherit;
+        outline:none;
+        transition:background 0.2s;
+    }
+
+    button:focus{
+        outline:2px solid #4b2c20;
+    }
+
+    .btn{
+        background:#4b2c20;
+        color:white;
+        padding:12px 24px;
+        border-radius:8px;
+        font-size:18px;
+        margin-top:20px;
+        transition:background 0.2s;
+    }
+    .btn:hover{
+        background:#6f4e37;
+    }
+
+    /* CHAT ICON BUTTON */
+    #chat-icon{
+        position:fixed;
+        bottom:20px;
+        right:20px;
+        width:60px;
+        height:60px;
+        border-radius:50%;
+        background:#4b2c20;
+        color:white;
+        font-size:32px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        box-shadow:0 2px 8px rgba(0,0,0,0.15);
+        z-index:1000;
+        transition:background 0.2s;
+    }
+    #chat-icon:hover{
+        background:#6f4e37;
+    }
+
+    /* CHATBOX */
+    #chat-box{
+        position:fixed;
+        bottom:90px;
+        right:20px;
+        width:320px;
+        max-width:95vw;
+        height:450px;
+        max-height:90vh;
+        background:white;
+        border-radius:12px;
+        display:none;
+        flex-direction:column;
+        overflow:hidden;
+        box-shadow:0 0 10px rgba(0,0,0,0.2);
+        z-index:1001;
+    }
+
+    /* HEADER */
+    #chat-header, .chat-header{
+        background:#4b2c20;
+        color:white;
+        padding:12px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        font-size:18px;
+        font-weight:bold;
+    }
+
+    /* CLOSE BUTTON */
+    .close-btn{
+        background:none;
+        color:white;
+        font-size:20px;
+    }
+
+    /* MESSAGES */
+    #chat-messages{
+        flex:1;
+        padding:10px;
+        overflow-y:auto;
+        background:#fafafa;
+        min-height:100px;
+        max-height:300px;
+    }
+
+    .msg{
+        padding:8px 12px;
+        margin:8px 0;
+        border-radius:10px;
+        width:fit-content;
+        max-width:80%;
+        word-break:break-word;
+        font-size:15px;
+    }
+
+    .bot{
+        background:#ececec;
+    }
+
+    .user{
+        background:#6f4e37;
+        color:white;
+        margin-left:auto;
+    }
+
+    /* QUICK BUTTONS */
+    .quick-buttons{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        padding:10px;
+        background:#f5f5f5;
+        border-bottom:1px solid #eee;
+    }
+    .quick-btn{
+        background:#ececec;
+        color:#4b2c20;
+        border-radius:6px;
+        padding:6px 14px;
+        font-size:14px;
+        margin:0;
+        transition:background 0.2s;
+    }
+    .quick-btn:hover{
+        background:#d6cfc7;
+    }
+
+    /* INPUT */
+    .chat-footer{
+        display:flex;
+        border-top:1px solid #ddd;
+        background:#fff;
+    }
+
+    #user-input{
+        flex:1;
+        padding:10px;
+        border:none;
+        outline:none;
+        font-size:15px;
+        background:#fafafa;
+        border-radius:0 0 0 8px;
+    }
+
+    #send-btn{
+        background:#4b2c20;
+        color:white;
+        padding:10px 15px;
+        border-radius:0 0 8px 0;
+        font-size:15px;
+        transition:background 0.2s;
+    }
+    #send-btn:hover{
+        background:#6f4e37;
+    }
+    /* Responsive for mobile */
+    @media (max-width: 500px) {
+        #chat-box {
+            width: 98vw;
+            right: 1vw;
+            left: 1vw;
+            min-width: unset;
+            max-width: unset;
+        }
+        #chat-icon {
+            right: 1vw;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+        }
+    }
+</style>
+</head>
+
+<body>
+<div class="hero">
+    <h1>The Coffee Nook ☕</h1>
+    <p>
+        Welcome to The Coffee Nook. 
+        Enjoy handcrafted coffee, desserts, and smart customer support 
+        with our AI-powered Coffee Help Desk Assistant.
+    </p>
+    <button class="btn" onclick="toggleChat()">
+        Chat With Assistant
+    </button>
+</div>
+
+<!-- CHAT ICON -->
+<div id="chat-icon" onclick="toggleChat()">
+    ☕
+</div>
+
+<!-- CHAT BOX -->
+<div id="chat-box">
+    <div id="chat-header">
+        Coffee Help Desk Assistant
+        <button class="close-btn" onclick="toggleChat()">
+        ✖
+        </button>
+    </div>
+    <div id="chat-messages">
+        <div class="msg bot">
+            Hello 👋 Welcome to The Coffee Nook.
+            Ask me about menu, prices, refunds, delayed orders, recommendations, etc.
+        </div>
+    </div>
+
+    <!-- QUICK BUTTONS -->
+    <div class="quick-buttons">
+        <button class="quick-btn" onclick="quickMessage('menu')">
+            Menu
+        </button>
+        <button class="quick-btn" onclick="quickMessage('price')">
+            Prices
+        </button>
+        <button class="quick-btn" onclick="quickMessage('refund')">
+            Refund
+        </button>
+        <button class="quick-btn" onclick="quickMessage('order delayed')">
+            Order Delay
+        </button>
+        <button class="quick-btn" onclick="quickMessage('recommend coffee')">
+            Recommend
+        </button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="chat-footer">
+        <input
+            type="text"
+            id="user-input"
+            placeholder="Type your message..."
+            onkeypress="if(event.key==='Enter') sendMessage()"
+        >
+        <button id="send-btn" onclick="sendMessage()">
+            Send
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // OPEN/CLOSE CHAT
+    function toggleChat(){
+        const chatBox = document.getElementById("chat-box");
+        if(chatBox.style.display === "flex"){
+            chatBox.style.display = "none";
+        }else{
+            chatBox.style.display = "flex";
+        }
+    }
+    // RULE-BASED KNOWLEDGE BASE
+    const rules = [
+        {
+            keywords:["want", "have", "need", "looking for", "take"],
+            response:"Sure! Kindly contact our staff at the counter for placing your order. We will be happy to serve you!"
+        },
+
+        {
+            keywords:["hello","hi","hey"],
+            response:"Hello! Welcome to The Coffee Nook ☕"
+        },
+
+        {
+            keywords:["menu","coffee","drink", "order"],
+            response:"We serve Espresso, Cappuccino, Latte, Cold Brew, Mocha, Brownies and Cookies."
+        },
+
+        {
+            keywords:["price","cost","rate"],
+            response:"Coffee prices range between ₹150 and ₹350."
+        },
+
+        {
+            keywords:["hours","timing","open","close"],
+            response:"We are open daily from 8 AM to 8 PM."
+        },
+
+        {
+            keywords:["location","address","where"],
+            response:"We are located at MG Road, Pune."
+        },
+
+        {
+            keywords:["refund","money","return"],
+            response:"Refund requests are processed within 3-5 working days."
+        },
+
+        {
+            keywords:["delay","late","waiting"],
+            response:"We apologize for the delay. Your order will arrive shortly."
+        },
+
+        {
+            keywords:["wrong order","incorrect","mistake"],
+            response:"Sorry for the inconvenience. Please contact the counter for replacement."
+        },
+
+        {
+            keywords:["payment","upi","transaction"],
+            response:"Please retry the payment or contact support if the issue continues."
+        },
+
+        {
+            keywords:["recommend","suggest"],
+            response:"If you enjoy strong coffee, try Espresso. For creamy coffee, try Latte."
+        },
+
+        {
+            keywords:["cold"],
+            response:"Our best cold coffee options are Cold Brew and Mocha Frappe."
+        },
+
+        {
+            keywords:["bye","thanks"],
+            response:"Thank you for visiting The Coffee Nook ☕ Have a great day!"
+        }
+    ];
+
+    // GET RESPONSE
+    function getBotResponse(message){
+        message = message.toLowerCase();
+        for(let rule of rules){
+            for(let word of rule.keywords){
+                if(message.includes(word)){
+                    return rule.response;
+                }
+            }
+        }
+        return "Sorry, I could not understand your request. Please try again.";
+    }
+
+    // APPEND MESSAGE
+    function appendMessage(sender,text){
+        const chat = document.getElementById("chat-messages");
+        const div = document.createElement("div");
+        div.classList.add("msg");
+        if(sender === "user"){
+            div.classList.add("user");
+        }else{
+            div.classList.add("bot");
+        }
+        div.textContent = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    // SEND MESSAGE
+    function sendMessage(){
+        const input = document.getElementById("user-input");
+        const message = input.value.trim();
+        if(message === "") return;
+        appendMessage("user",message);
+        const response = getBotResponse(message);
+        setTimeout(()=>{
+            appendMessage("bot",response);
+        },500);
+        input.value = "";
+    }
+
+    // QUICK BUTTON MESSAGE
+    function quickMessage(text){
+        appendMessage("user",text);
+        const response = getBotResponse(text);
+        setTimeout(()=>{
+            appendMessage("bot",response);
+        },500);
+    }
+</script>
+</body>
+</html>

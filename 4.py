@@ -5,13 +5,19 @@ app = Flask(__name__)
 # --- CONFIGURATION (EASY TO LEARN) ---
 
 responses = {
-    "hello": "Hello! Welcome to The Coffee Book. How can I help?",
-    "menu": "We have Espresso, Latte, Cappuccino, and fresh Cookies.",
-    "coffee": "We have Espresso, Latte, Cappuccino, and fresh Cookies.",
-    "price": "Coffees range from ₹150 to ₹350.",
-    "hours": "We are open daily from 8 AM to 8 PM.",
-    "location": "Find us at MG Road, Downtown.",
-    "bye": "Thanks for visiting! Have a great day!"
+    "order delayed": "We are sorry for the delay. Please wait 10 minutes or contact support at +91 XXXXX.",
+    
+    "refund": "Refund requests are processed within 3-5 working days.",
+
+    "wrong order": "We apologize. Please share your order ID for replacement.",
+
+    "payment failed": "Please retry after checking your internet connection.",
+
+    "cold coffee": "Our best cold coffee options are Cold Brew and Mocha Frappe.",
+
+    "recommend": "If you like strong coffee, try Espresso. For creamy coffee, try Latte.",
+
+    "hours": "We are open daily from 8 AM to 8 PM."
 }
 
 # --- HTML CONTENT IN ONE PLACE ---
