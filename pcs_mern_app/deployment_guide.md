@@ -27,7 +27,7 @@ You **do not** need multiple terminals. PM2 handles everything in the background
 ## 4. Database Administration (MongoDB)
 To verify your data without a separate terminal, enter the Mongo Shell:
 ```bash
-mongosh aura_db
+mongosh pcs_db
 ```
 
 ### Useful Queries for Verification:

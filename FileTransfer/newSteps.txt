@@ -1,0 +1,242 @@
+PART 2 — Create Resource Group
+
+Resource Group stores all resources together.
+
+Step 1
+
+In Azure search bar type:
+
+Resource Groups
+
+Open it.
+
+Step 2
+
+Click:
+
++ Create
+Step 3
+
+Fill these values:
+
+Field	Value
+Subscription	Your subscription
+Resource Group	SecureLab-RG
+Region	Central India (or nearest region)
+
+Click:
+
+Review + Create
+
+Then click:
+
+Create
+
+Wait until deployment finishes.
+
+
+
+
+
+PART 3 — Create Virtual Network
+
+The VNet allows private communication between VMs.
+
+Step 4
+
+Search:
+
+Virtual Networks
+
+Open it.
+
+Step 5
+
+Click:
+
++ Create
+
+BASIC TAB
+
+Fill:
+
+Field	Value
+Resource Group	SecureLab-RG
+Name	LabVNet
+Region	Same as RG
+
+Edit default value:
+
+Current values:
+
+Setting	Value
+Subnet Name	BackendSubnet
+IPv4 Address Range	10.0.0.0/16
+Starting Address	10.0.0.0
+Subnet Size	/24
+Final Subnet Range	10.0.0.0 – 10.0.0.255
+
+PART 3 — Create SenderVM
+Step 4
+
+Search:
+
+Virtual Machines
+
+Click:
+
++ Create → Azure Virtual Machine
+
+BASIC TAB
+
+Use:
+
+Field	Value
+Resource Group	SecureLab-RG
+VM Name	SenderVM
+Region	Same Region
+Image	Ubuntu Server 22.04 LTS
+Size	Standard_B1s
+
+ADMINISTRATOR ACCOUNT
+
+IMPORTANT:
+
+Choose:
+
+Password
+
+instead of SSH key.
+
+Use:
+
+Field	Value
+Username	azureuser
+Password	YourStrongPassword@123
+
+INBOUND PORTS
+
+Use:
+
+Setting	Value
+Public inbound ports	Allow selected ports
+Select inbound ports	SSH (22)
+
+Click:
+
+Next: Networking
+
+NETWORKING
+
+Use:
+
+Field	Value
+Virtual Network	LabVNet
+Subnet	BackendSubnet
+
+Leave everything else default.
+
+Click:
+
+Review + Create
+
+Then:
+
+Create
+
+Wait for deployment.
+
+PART 4 — Create ReceiverVM
+
+Repeat same process.
+
+Step 5
+
+Use:
+
+Field	Value
+VM Name	ReceiverVM
+Username	azureuser
+Password	Azure@12345
+
+Networking:
+
+Field	Value
+Virtual Network	LabVNet
+Subnet	BackendSubnet
+
+Allow SSH.
+
+Create VM.
+
+
+Step 8
+
+SSH command:
+
+ssh azureuser@SENDER_PUBLIC_IP
+
+PART 8 — Create Test File
+Step 10
+
+Inside SenderVM:
+
+echo "Hello from SenderVM" > testfile.txt
+
+Verify:
+
+ls
+
+PART 9 — Secure File Transfer Using SCP
+Step 11
+
+Inside SenderVM:
+
+scp testfile.txt azureuser@10.0.0.5:/home/azureuser/
+
+It will ask:
+
+Are you sure you want to continue connecting?
+
+Type:
+
+yes
+
+Then enter ReceiverVM password:
+
+Azure@12345
+
+Transfer complete.
+
+PART 10 — Verify File in ReceiverVM
+Step 12
+
+Open new terminal.
+
+SSH into ReceiverVM:
+
+ssh azureuser@RECEIVER_PUBLIC_IP
+
+Example:
+
+ssh azureuser@52.80.90.100
+
+Enter password.
+
+Step 13
+
+Check file:
+
+ls
+
+You should see:
+
+testfile.txt
+
+Open file:
+
+cat testfile.txt
+
+Expected:
+
+Hello from SenderVM

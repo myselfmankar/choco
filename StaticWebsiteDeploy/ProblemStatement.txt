@@ -1,0 +1,1 @@
+CC- Design and deploy a static website on a cloud virtual machine/Instance. Configure the server and networking settings so that the website is publicly accessible and can be updated remotely.

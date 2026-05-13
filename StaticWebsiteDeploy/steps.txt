@@ -1,0 +1,292 @@
+# **Azure Static Website Deployment using Virtual Machine (VM)**
+
+*(Step-by-Step Guide for Windows & Linux)*
+
+---
+
+# **🔹 PART 1: CREATE VIRTUAL MACHINE (COMMON FOR BOTH)**
+
+### **Step 1: Login to Azure**
+
+1. Go to: https://portal.azure.com
+2. Sign in with your account
+
+---
+
+### **Step 2: Create Virtual Machine**
+
+1. Search → **Virtual Machines**
+2. Click → **Create → Azure Virtual Machine**
+
+---
+
+### **Step 3: Fill Basic Details**
+
+* Resource Group → `myRG`
+* VM Name → `myVM`
+* Region → Any (e.g., Central India)
+* Image → **Ubuntu Server 22.04/24.04**
+* Size → **Standard_B2ats_v2**
+
+---
+
+### **Step 4: Authentication**
+
+* Username → `azureuser`
+* Password → (set your password)
+
+---
+
+### **Step 5: Inbound Ports**
+
+Allow:
+
+* ✅ SSH (22)
+* ✅ HTTP (80)
+
+Click → **Review + Create → Create**
+
+---
+
+### **Step 6: Get Public IP**
+
+* Go to VM → Overview
+* Copy **Public IP Address**
+
+---
+
+# **🔹 PART 2: WINDOWS STEPS**
+
+## **Step 1: Open Command Prompt / PowerShell**
+
+Run:
+
+```bash
+ssh azureuser@<public-ip>
+```
+
+Example:
+
+```bash
+ssh azureuser@4.186.31.174
+```
+
+---
+
+## **Step 2: First-Time Login**
+
+* Type `yes` when asked
+* Enter password
+
+---
+
+## **Step 3: Install NGINX**
+
+```bash
+sudo apt update
+sudo apt install nginx -y
+```
+
+Start server:
+
+```bash
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+---
+
+## **Step 4: Test Website**
+
+Open browser:
+
+```
+http://<public-ip>
+```
+
+---
+
+## **Step 5: Deploy Static Website**
+
+Go to folder:
+
+```bash
+cd /var/www/html
+```
+
+Remove default file:
+
+```bash
+sudo rm index.nginx-debian.html
+```
+
+Create new file:
+
+```bash
+sudo nano index.html
+```
+
+Paste:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Azure Website</title>
+</head>
+<body>
+    <h1>Welcome to My Website 🚀</h1>
+    <p>Hosted on Azure VM</p>
+</body>
+</html>
+```
+
+Save:
+
+* CTRL + X → Y → ENTER
+
+---
+
+## **Step 6: Set Permissions**
+
+```bash
+sudo chmod -R 755 /var/www/html
+```
+
+---
+
+## **Step 7: Upload Files from Windows (Optional)**
+
+```bash
+scp index.html azureuser@<public-ip>:/home/azureuser
+```
+
+Move file:
+
+```bash
+sudo mv /home/azureuser/index.html /var/www/html/
+```
+
+---
+
+# **🔹 PART 3: LINUX / MAC STEPS**
+
+## **Step 1: Open Terminal**
+
+```bash
+ssh azureuser@<public-ip>
+```
+
+---
+
+## **Step 2: Install NGINX**
+
+```bash
+sudo apt update
+sudo apt install nginx -y
+```
+
+---
+
+## **Step 3: Start Server**
+
+```bash
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+---
+
+## **Step 4: Deploy Website**
+
+```bash
+cd /var/www/html
+sudo rm index.nginx-debian.html
+sudo nano index.html
+```
+
+Paste HTML (same as above)
+
+---
+
+## **Step 5: Set Permissions**
+
+```bash
+sudo chmod -R 755 /var/www/html
+```
+
+---
+
+## **Step 6: Upload Files (Optional)**
+
+```bash
+scp index.html azureuser@<public-ip>:/home/azureuser
+sudo mv /home/azureuser/index.html /var/www/html/
+```
+
+---
+
+# **🔹 PART 4: NETWORK CONFIGURATION**
+
+1. Go to Azure Portal
+2. Open VM → **Networking**
+3. Ensure:
+
+   * Port 80 → Allow
+   * Port 22 → Allow
+
+---
+
+# **🔹 PART 5: ACCESS WEBSITE**
+
+Open in browser:
+
+```
+http://<public-ip>
+```
+
+---
+
+# **🔹 PART 6: UPDATE WEBSITE REMOTELY**
+
+1. Connect via SSH
+2. Edit file:
+
+```bash
+cd /var/www/html
+sudo nano index.html
+```
+
+---
+
+# **🔹 ARCHITECTURE (FOR VIVA)**
+
+* Azure VM → Server
+* NGINX → Web server
+* Public IP → Internet access
+* Port 80 → HTTP
+
+---
+
+# **🔹 FINAL OUTPUT**
+
+* Static website hosted on Azure VM
+* Publicly accessible
+* Can update remotely using SSH
+
+---
+
+# **🔹 QUICK COMMAND SUMMARY**
+
+```bash
+sudo apt update
+sudo apt install nginx -y
+cd /var/www/html
+sudo rm index.nginx-debian.html
+sudo nano index.html
+sudo chmod -R 755 /var/www/html
+```
+
+---
+
+✅ **Project Completed Successfully**

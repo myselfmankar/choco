@@ -1,0 +1,330 @@
+PART 2 — CREATE CUSTOM OBJECT
+Step 2: Open Setup
+Login to Salesforce
+Click ⚙️ (top-right)
+Click Setup
+Step 3: Create Employee Object
+
+Search:
+
+Object Manager
+
+Click:
+
+Object Manager → Create → Custom Object
+
+Fill:
+
+Field	Value
+Label	Employee
+Plural Label	Employees
+Object Name	Employee
+Record Name	Employee Record
+Data Type	Auto Number
+Display Format	EMP-{0000}
+Starting Number	1
+
+Enable:
+
+✅ Allow Reports
+✅ Allow Activities
+✅ Track Field History
+
+Click:
+
+Save
+
+PART 3 — CREATE FIELDS
+
+Go to:
+
+Object Manager → Employee → Fields & Relationships → New
+
+FIELD 1 — Employee Name
+Create Text Field
+Property	Value
+Data Type	Text
+Field Label	Employee Name
+Length	100
+
+Field Name auto becomes:
+
+Employee_Name
+
+Click:
+
+Next → Next → Save
+
+FIELD 2 — Employee ID
+Create Number Field
+Property	Value
+Data Type	Number
+Field Label	Employee ID
+Length	10
+Decimal Places	0
+Unique	✅ Checked
+
+Field API Name:
+
+Employee_ID
+
+Click Save
+
+FIELD 3 — Salary
+Create Currency Field
+Property	Value
+Data Type	Currency
+Field Label	Salary
+Length	16
+Decimal Places	2
+
+API Name:
+
+Salary
+
+Save.
+
+FIELD 4 — Email
+Create Email Field
+Property	Value
+Data Type	Email
+Field Label	Email
+
+API Name:
+
+Email
+
+Save.
+
+FIELD 5 — Department
+Create Picklist Field
+Property	Value
+Data Type	Picklist
+Field Label	Department
+
+Enter Values:
+
+HR
+Finance
+IT
+Marketing
+Sales
+Operations
+
+Save.
+
+FIELD 6 — Joining Date
+Create Date Field
+Property	Value
+Data Type	Date
+Field Label	Joining Date
+
+Save.
+
+
+
+Object Manager → Employee → Validation Rules → New
+
+VALIDATION 1 — Employee Name
+Rule Name
+Employee_Name_Validation
+Formula
+OR(
+    ISBLANK(Employee_Name__c),
+    LEN(Employee_Name__c) < 3
+)
+Error Message
+Employee Name must contain at least 3 characters.
+
+Save.
+
+VALIDATION 2 — Employee ID
+Rule Name
+Employee_ID_Validation
+Formula
+Employee_ID__c <= 0
+Error Message
+Employee ID must be greater than 0.
+
+Save.
+
+VALIDATION 3 — Salary Validation
+Rule Name
+Salary_Validation
+Formula
+OR(
+    Salary__c <= 10000,
+    Salary__c >= 500000
+)
+Error Message
+Salary must be between 10,000 and 500,000.
+
+Save.
+
+VALIDATION 4 — Department Required
+Rule Name
+Department_Validation
+Formula
+ISBLANK(TEXT(Department__c))
+Error Message
+Please select a department.
+
+Save.
+
+VALIDATION 5 — Joining Date Validation
+Rule Name
+Joining_Date_Validation
+Formula
+Joining_Date__c > TODAY()
+Error Message
+Joining Date cannot be a future date.
+
+Save.
+
+
+PART 7 — CREATE TAB FOR EMPLOYEE OBJECT
+
+Usually Salesforce automatically creates the tab.
+
+If not:
+
+Step 1
+
+Go to:
+
+Setup → Tabs
+Step 2
+
+Under:
+
+Custom Object Tabs
+
+Click:
+
+New
+Step 3
+
+Choose:
+
+Field	Value
+Object	Employee
+Tab Style	Any color/icon
+
+Click:
+
+Next → Next → Save
+
+CREATE LIGHTNING APP
+
+Go step-by-step carefully.
+
+Step 1 — Open App Manager
+
+Go to:
+
+Setup → App Manager
+
+You can search “App Manager” in Setup search bar.
+
+Step 2 — Click New Lightning App
+
+Top-right click:
+
+New Lightning App
+Step 3 — Enter App Details
+
+Fill these values:
+
+Field	Value
+App Name	Employee Management App
+Developer Name	Employee_Management_App
+
+Click:
+
+Next
+Step 4 — Branding Page
+
+You can keep default values.
+
+(Optional)
+
+You may choose:
+
+App Color
+Logo
+
+Then click:
+
+Next
+Step 5 — Utility Items
+
+No need to add anything.
+
+Simply click:
+
+Next
+Step 6 — Navigation Items (Important)
+
+You will see:
+
+Available Items (left)
+Selected Items (right)
+
+Find:
+
+Employees
+
+Select it and click right arrow → to move into Selected Items.
+
+You can also add:
+
+Home
+Reports
+Dashboards
+
+Recommended Selected Items:
+
+Home
+Employees
+Reports
+Dashboards
+
+Click:
+
+Next
+Step 7 — Assign Profiles
+
+Select:
+
+System Administrator
+
+Move to selected profiles.
+
+Click:
+
+Save & Finish
+Step 8 — Open Your App
+
+Click:
+
+App Launcher (9 dots)
+
+Search:
+
+Employee Management App
+
+Open it.
+
+Step 9 — Test Your Application
+
+Click:
+
+Employees Tab
+
+Then click:
+
+New
+
+Now enter employee details.
+
+Try invalid inputs to test validations.
