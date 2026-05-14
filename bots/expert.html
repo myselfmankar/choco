@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Simple IT Help Desk</title>
+    </head>
+
+    <body>
+        <h1>IT Help Desk</h1>
+
+        <div id="app"></div>
+
+        <script>
+            const app = document.getElementById("app");
+
+            // MAIN MENU
+            function showMenu() {
+                app.innerHTML = `
+
+                <h3>Select Problem</h3>
+
+                <button onclick="internetIssue()">
+                    Internet Problem
+                </button>
+
+                <br><br>
+
+                <button onclick="computerIssue()">
+                    Computer Not Starting
+                </button>
+
+                <br><br>
+
+                <button onclick="performanceIssue()">
+                    Slow Computer
+                </button>
+
+                <br><br>
+
+                <button onclick="printerIssue()">
+                    Printer Problem
+                </button>
+
+                <br><br>
+
+                <button onclick="softwareIssue()">
+                    Software Problem
+                </button>
+
+                <br><br>
+
+                <button onclick="wifiIssue()">
+                    WiFi Connection Problem
+                </button>
+
+            `;
+            }
+
+            // ---------------- INTERNET ISSUE ----------------
+
+            function internetIssue() {
+                app.innerHTML = `
+
+                <h3>Are router lights OFF?</h3>
+
+                <button onclick="routerOff()">
+                    Yes
+                </button>
+
+                <button onclick="routerOn()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function routerOff() {
+                showResult("Router Power Issue", "Check router power cable.");
+            }
+
+            function routerOn() {
+                app.innerHTML = `
+
+                <h3>Is there a RED light on modem?</h3>
+
+                <button onclick="ispIssue()">
+                    Yes
+                </button>
+
+                <button onclick="unknownIssue()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function ispIssue() {
+                showResult("ISP Problem", "Contact Internet Provider.");
+            }
+
+            // ---------------- COMPUTER ISSUE ----------------
+
+            function computerIssue() {
+                app.innerHTML = `
+
+                <h3>Is computer plugged in?</h3>
+
+                <button onclick="notPlugged()">
+                    No
+                </button>
+
+                <button onclick="powerCheck()">
+                    Yes
+                </button>
+
+            `;
+            }
+
+            function notPlugged() {
+                showResult(
+                    "Computer Not Plugged In",
+                    "Plug computer properly.",
+                );
+            }
+
+            function powerCheck() {
+                app.innerHTML = `
+
+                <h3>Does power button light up?</h3>
+
+                <button onclick="unknownIssue()">
+                    Yes
+                </button>
+
+                <button onclick="psuIssue()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function psuIssue() {
+                showResult("Power Supply Failure", "Replace PSU.");
+            }
+
+            // ---------------- PERFORMANCE ISSUE ----------------
+
+            function performanceIssue() {
+                app.innerHTML = `
+
+                <h3>Is CPU usage near 100%?</h3>
+
+                <button onclick="highCpu()">
+                    Yes
+                </button>
+
+                <button onclick="unknownIssue()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function highCpu() {
+                showResult("High CPU Usage", "Close heavy programs.");
+            }
+
+            // ---------------- PRINTER ISSUE ----------------
+
+            function printerIssue() {
+                app.innerHTML = `
+
+                <h3>Is printer showing OFFLINE?</h3>
+
+                <button onclick="printerOffline()">
+                    Yes
+                </button>
+
+                <button onclick="unknownIssue()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function printerOffline() {
+                showResult(
+                    "Printer Offline",
+                    "Reconnect printer cable or WiFi.",
+                );
+            }
+
+            // ---------------- SOFTWARE ISSUE ----------------
+
+            function softwareIssue() {
+                app.innerHTML = `
+
+                <h3>Does application crash on startup?</h3>
+
+                <button onclick="appCrash()">
+                    Yes
+                </button>
+
+                <button onclick="unknownIssue()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function appCrash() {
+                showResult(
+                    "Corrupted Application",
+                    "Reinstall the application.",
+                );
+            }
+
+            // ---------------- WIFI ISSUE ----------------
+
+            function wifiIssue() {
+                app.innerHTML = `
+
+                <h3>Is device connected to WiFi?</h3>
+
+                <button onclick="wifiConnected()">
+                    Yes
+                </button>
+
+                <button onclick="wifiNotConnected()">
+                    No
+                </button>
+
+            `;
+            }
+
+            function wifiNotConnected() {
+                showResult("WiFi Not Connected", "Reconnect to WiFi network.");
+            }
+
+            function wifiConnected() {
+                showResult("Weak Internet Signal", "Move closer to router.");
+            }
+
+            // ---------------- COMMON RESULT FUNCTION ----------------
+
+            function showResult(diagnosis, solution) {
+                app.innerHTML = `
+
+                <h2>Diagnosis</h2>
+
+                <p>${diagnosis}</p>
+
+                <h2>Solution</h2>
+
+                <p>${solution}</p>
+
+                <button onclick="showMenu()">
+                    Restart
+                </button>
+
+            `;
+            }
+
+            // ---------------- UNKNOWN ISSUE ----------------
+
+            function unknownIssue() {
+                showResult("Unknown Issue", "Contact technician.");
+            }
+
+            // START APP
+            showMenu();
+        </script>
+    </body>
+</html>

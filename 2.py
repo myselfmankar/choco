@@ -17,12 +17,11 @@ def a_star(grid, start, goal):
     rows, cols = len(grid), len(grid[0])
 
     # Priority Queue: (f, g, node)
-    open_list = []
-    heapq.heappush(open_list, (0, 0, start))
+    open_list = [(0,0,start)]
+    # heapq.heappush(open_list, (0, 0, start))
 
     seen = {}
     g_cost = {start: 0}
-
     visited = set()
 
     while open_list:
